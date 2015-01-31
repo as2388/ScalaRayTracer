@@ -1,6 +1,8 @@
 # ScalaRayTracer
 A ray tracer built completely from the ground up in Scala.
 
+<img src="https://dl.dropboxusercontent.com/u/60694349/GitHub/ScalaRayTracer/trace0.png" />
+
 Current features:
  - Shapes:
    - Sphere
