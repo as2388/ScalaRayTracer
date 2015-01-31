@@ -11,25 +11,25 @@ import scalafx.scene.image.{ImageView, WritableImage}
 import scalafx.scene.paint.Color
 
 object GUI extends JFXApp {
-    val size = new Size(3200, 1600)
+    val size = new Size(320, 160)
     val mimage = new WritableImage(size.width, size.height)
     val pixelWriter = mimage.pixelWrit
 
 
 
-    for (iter <- -200 to 200 if iter % 2 == 0 && (iter < -150 || iter > 150)) {
+    for (iter <- 90 to 270 if iter % 5 == 0 || (iter > 152 && iter < 176)) {
         val time = System.currentTimeMillis()
         println("Intialising RayTracer...")
-        val tracer = new RayTracer(size, iter)
+        val tracer = new RayTracer(size, iter - 180)
 
-        println("Starting trace for image " + (200 - iter))
+        println("Starting trace for image " + iter)
 
         tracer writeToImage pixelWriter
 
         println("Tracing complete")
 
-        println("Writing to file " + (200 - iter) + ".png...")
-        val file = new File("img/" + (200 - iter) + ".png")
+        println("Writing to file " + iter + ".png...")
+        val file = new File(iter + ".png")
         ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
 
         val millis = System.currentTimeMillis() - time

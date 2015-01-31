@@ -3,7 +3,7 @@ package as2388.scala.raytracer
 import scalafx.scene.paint.Color
 
 class Plane(val normal: Vector, val distance: Double,
-            val diffusivity: Double, val reflectivity: Double, val color: Color, val mass: Double) extends Shape {
+            val diffusivity: Double, val reflectivity: Double, val color: Color) extends Shape {
     override def color(point: Point): Color = color
 
     override def closestIntersection(line: Line): IntersectionData = {
@@ -17,8 +17,8 @@ class Plane(val normal: Vector, val distance: Double,
 }
 
 class CheckeredPlane(normal: Vector, distance: Double, diffusivity: Double, reflectivity: Double,
-                     val color1: Color, val color2: Color, mass: Double)
-        extends Plane(normal, distance, diffusivity, reflectivity, null, mass) {
+                     val color1: Color, val color2: Color)
+        extends Plane(normal, distance, diffusivity, reflectivity, null) {
     override def color(point: Point): Color = {
         val x = if (point.x >= 0) point.x.toInt else point.x.toInt - 1
         val y = if (point.y >= 0) point.y.toInt else point.y.toInt - 1
@@ -28,8 +28,8 @@ class CheckeredPlane(normal: Vector, distance: Double, diffusivity: Double, refl
 }
 
 class FinitePlane(normal: Vector, distance: Double, diffusivity: Double, reflectivity: Double, color: Color,
-                  val vertices: List[Point], mass: Double, val translationOffset: Point = new Point(0, 0, 0))
-        extends Plane(normal, distance, diffusivity, reflectivity, color, mass) with Magnitude {
+                  val vertices: List[Point], val translationOffset: Point = new Point(0, 0, 0))
+        extends Plane(normal, distance, diffusivity, reflectivity, color) with Magnitude {
     val TAU = 2 * Math.PI
 
     override def closestIntersection(line: Line) : IntersectionData = {

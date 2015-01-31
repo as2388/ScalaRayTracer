@@ -9,7 +9,5 @@ trait Shape {
 
     def color(point: Point): Color
 
-    def mass: Double
-
     def closestIntersection(line: Line): IntersectionData
 }

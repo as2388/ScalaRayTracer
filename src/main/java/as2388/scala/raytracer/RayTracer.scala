@@ -8,8 +8,10 @@ class RayTracer(val size: Size, val iter: Double) {
     val TAU = 2 * Math.PI
 
     val shapes: List[Shape] =
-        new Sphere(new Point(22, 5, 0), 3, 1.0, 0.0, Color.rgb(233, 30, 99), -0.02) :: //Pink 500
-        new Sphere(new Point(28, 5 + (iter / 10), 0), 2, 1.0, 0.0, Color.rgb(103, 58, 183), 0) :: //Deep Purple 500
+//        new Sphere(new Point(22, 5, 0), 0, 1.0, 0.0, Color.rgb(233, 30, 99)) :: //Pink 500
+        //new Sphere(new Point(28, 5 + (iter / 10), 0), 2, 1.0, 0, Color.rgb(103, 58, 183), 0) :: //Deep Purple 500
+        new Sphere(new Point(28, 5 + (iter / 10), 0), 2, 1.0, 0, Color.rgb(255, 193, 7)) :: //Deep Purple 500
+//        new Sphere(new Point(32, 5, (iter / 10) + 3), 2, 1.0, 0, Color.rgb(58, 103, 183), 0) :: //Deep Purple 500
 //                new Sphere(new Point(21, 9, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
 //                new Sphere(new Point(36, -8, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
 //                new Sphere(new Point(15, 18, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
@@ -36,6 +38,10 @@ class RayTracer(val size: Size, val iter: Double) {
 //                new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8, 0.2, Color.rgb(238, 238, 238), Color.rgb(158, 158, 158), 0) ::
                 Nil
 
+    val singularities: List[Singularity] =
+        new Singularity(new Point(22, 5, 0), -0.037) ::
+        Nil
+
     val randomizer = new Random()
 //    val shapes: List[Shape] =
 //        new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8, 0.2, Color.rgb(238, 238, 238), Color.rgb(158, 158, 158)) ::
@@ -48,17 +54,19 @@ class RayTracer(val size: Size, val iter: Double) {
 //        )))
 
     val lights: List[PointLight] =
-                new PointLight(new Point(-10, 50, 80), 0.60) ::
-                new PointLight(new Point(-20, -50, 50), 0.30) ::
+                new PointLight(new Point(-10, 50, 80), 0.30) ::
+                new PointLight(new Point(54, 50, 80), 0.30) ::
+                new PointLight(new Point(-20, -50, 50), 0.2) ::
+                new PointLight(new Point(28, 5, -70), 0.20) ::
                 Nil
 
     val camera = new Camera(
         screenCentre = new Point(22, 5, 0), //(22, ...
         distanceFromScreen = 70,
         screenPixelDimensions = size,
-        pointsPerPixel = 0.04,
+        pointsPerPixel = 3.5,
         yaw = 0,
-        pitch = 0, //TAU / 16
+        pitch = 0,//TAU / 16,
         roll = 0
     )
 
@@ -86,8 +94,7 @@ class RayTracer(val size: Size, val iter: Double) {
 //        )
     //    ---------------------------------------
 
-    def closestShape(line: Line, distanceSoFar : Double): IntersectionData =
-    {//println((line.point.x, line.point.y, line.point.z), (line.vector.x, line.vector.y, line.vector.z), distanceSoFar)
+    def closestShape(line: Line, distanceSoFar : Double): IntersectionData = {
         if (distanceSoFar > 100) null else
         if ((shapes map (_ closestIntersection line)).filter(_ != null) != Nil) {
             val closest =
@@ -98,14 +105,10 @@ class RayTracer(val size: Size, val iter: Double) {
                 if (a != null && b != null && a.distance > 0 && a.distance < b.distance) a
                 else b)
 
-//            if (closest != null && closest.distance < 10) 5 / 0
-
             if (closest == null || closest.distance < 1) closest
             else {
-                val spheres : List[Sphere] = shapes filter (_.isInstanceOf[Sphere]) map (_.asInstanceOf[Sphere])
-
-                val gravitationalForces : List[Vector] = spheres map (shape => new Vector(line.point add line.vector.scalarMultiply(1).asPoint(), shape.center)
-                        scalarMultiply (shape.mass / Math.pow(line.point add line.vector.scalarMultiply(1).asPoint() distanceTo shape.center, 1)))
+                val gravitationalForces : List[Vector] = singularities map (singularity => new Vector(line.point add line.vector.scalarMultiply(1).asPoint(), singularity.location)
+                        scalarMultiply (singularity.strength / Math.pow(line.point add line.vector.scalarMultiply(1).asPoint() distanceTo singularity.location, 1)))
 
                 val newVector = gravitationalForces.foldLeft(line.vector)((b:Vector, a:Vector) => a add b) normalize()
 
@@ -113,15 +116,12 @@ class RayTracer(val size: Size, val iter: Double) {
             }
         }
         else {
-            val spheres : List[Sphere] = shapes filter (_.isInstanceOf[Sphere]) map (_.asInstanceOf[Sphere])
-
-            val gravitationalForces : List[Vector] = spheres map (shape => new Vector(line.point add line.vector.scalarMultiply(1).asPoint(), shape.center)
-                    scalarMultiply (shape.mass / Math.pow(line.point add line.vector.scalarMultiply(1).asPoint() distanceTo shape.center, 1)))
+            val gravitationalForces : List[Vector] = singularities map (singularity => new Vector(line.point add line.vector.scalarMultiply(1).asPoint(), singularity.location)
+                    scalarMultiply (singularity.strength / Math.pow(line.point add line.vector.scalarMultiply(1).asPoint() distanceTo singularity.location, 1)))
 
             val newVector = gravitationalForces.foldLeft(line.vector)((b:Vector, a:Vector) => a add b) normalize()
 
             closestShape(new Line(line.point add line.vector.scalarMultiply(1).asPoint(), newVector), distanceSoFar + 1)
-
         }}
 
     def diffuseIntensity(intersectionData: IntersectionData) =
@@ -147,7 +147,7 @@ class RayTracer(val size: Size, val iter: Double) {
     def colorRay(line: Line, impact: Double): Color = {
         val closestIntersection: IntersectionData = closestShape(line, 0)
 
-        if (closestIntersection == null || impact < 0.05) Color.rgb(0, 0, 0)
+        if (closestIntersection == null || impact < 0.05) Color.rgb(0, 0, 0) //Color.rgb(38, 50, 56)
         else {
             val diffuseIllumination = diffuseIntensity(closestIntersection)
             val ambientIllumination = 0.1
