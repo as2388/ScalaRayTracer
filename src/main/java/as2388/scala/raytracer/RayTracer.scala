@@ -42,7 +42,9 @@ class RayTracer(val size: Size, val iter: Double) {
         new Singularity(new Point(22, 5, 0), -0.037) ::
         Nil
 
-    val randomizer = new Random()
+    val singularityDepthLimit = 100
+
+//    val randomizer = new Random()
 //    val shapes: List[Shape] =
 //        new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8, 0.2, Color.rgb(238, 238, 238), Color.rgb(158, 158, 158)) ::
 //                ((0 to 50).toList map (x=> new Cuboid(
@@ -94,35 +96,30 @@ class RayTracer(val size: Size, val iter: Double) {
 //        )
     //    ---------------------------------------
 
-    def closestShape(line: Line, distanceSoFar : Double): IntersectionData = {
-        if (distanceSoFar > 100) null else
-        if ((shapes map (_ closestIntersection line)).filter(_ != null) != Nil) {
-            val closest =
-                (shapes map (_ closestIntersection line)).
-                foldLeft(null: IntersectionData)((b, a) =>
-                if (b == null && a != null && a.distance > 0) a
-                else
-                if (a != null && b != null && a.distance > 0 && a.distance < b.distance) a
-                else b)
+    def closestShape(line: Line, distanceSoFar: Double): IntersectionData = {
+        lazy val closest = (shapes map (_ closestIntersection line)).foldLeft(null: IntersectionData)((b, a) =>
+            if (b == null && a != null && a.distance > 0) a
+            else
+            if (a != null && b != null && a.distance > 0 && a.distance < b.distance) a
+            else b)
 
-            if (closest == null || closest.distance < 1) closest
-            else {
-                val gravitationalForces : List[Vector] = singularities map (singularity => new Vector(line.point add line.vector.scalarMultiply(1).asPoint(), singularity.location)
-                        scalarMultiply (singularity.strength / Math.pow(line.point add line.vector.scalarMultiply(1).asPoint() distanceTo singularity.location, 1)))
+        singularities match {
+            case Nil => closest
+            case _ =>
+                if (distanceSoFar > singularityDepthLimit) null
+                else if (closest == null || closest.distance > 1) {
+                    val endPoint = line.point add line.vector.scalarMultiply(1).asPoint()
 
-                val newVector = gravitationalForces.foldLeft(line.vector)((b:Vector, a:Vector) => a add b) normalize()
+                    val gravitationalForces: List[Vector] = singularities map (singularity => new Vector(endPoint, singularity.location)
+                            scalarMultiply (singularity.strength / Math.pow(endPoint distanceTo singularity.location, 1)))
 
-                closestShape(new Line(line.point add line.vector.scalarMultiply(1).asPoint(), newVector), distanceSoFar + 1)
-            }
+                    val newVector = gravitationalForces.foldLeft(line.vector)((b: Vector, a: Vector) => a add b) normalize()
+
+                    closestShape(new Line(endPoint, newVector), distanceSoFar + 1)
+                }
+                else closest
         }
-        else {
-            val gravitationalForces : List[Vector] = singularities map (singularity => new Vector(line.point add line.vector.scalarMultiply(1).asPoint(), singularity.location)
-                    scalarMultiply (singularity.strength / Math.pow(line.point add line.vector.scalarMultiply(1).asPoint() distanceTo singularity.location, 1)))
-
-            val newVector = gravitationalForces.foldLeft(line.vector)((b:Vector, a:Vector) => a add b) normalize()
-
-            closestShape(new Line(line.point add line.vector.scalarMultiply(1).asPoint(), newVector), distanceSoFar + 1)
-        }}
+    }
 
     def diffuseIntensity(intersectionData: IntersectionData) =
         lights.map(light =>
