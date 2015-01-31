@@ -11,31 +11,34 @@ import scalafx.scene.image.{ImageView, WritableImage}
 import scalafx.scene.paint.Color
 
 object GUI extends JFXApp {
-    val size = new Size(16000, 9000)
+    val size = new Size(3200, 1600)
     val mimage = new WritableImage(size.width, size.height)
     val pixelWriter = mimage.pixelWrit
 
-    val time = System.currentTimeMillis()
 
-    println("Intialising RayTracer...")
-    val tracer = new RayTracer(size)
 
-    println("Starting trace")
+    for (iter <- -200 to 200 if iter % 2 == 0 && (iter < -150 || iter > 150)) {
+        val time = System.currentTimeMillis()
+        println("Intialising RayTracer...")
+        val tracer = new RayTracer(size, iter)
 
-    tracer writeToImage pixelWriter
+        println("Starting trace for image " + (200 - iter))
 
-    println("Tracing complete")
+        tracer writeToImage pixelWriter
 
-    println("Writing to file...")
-    val file = new File("t.png")
-    ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
+        println("Tracing complete")
 
-    val millis = System.currentTimeMillis() - time
-    println("Total time: " +
+        println("Writing to file " + (200 - iter) + ".png...")
+        val file = new File("img/" + (200 - iter) + ".png")
+        ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
+
+        val millis = System.currentTimeMillis() - time
+        println("Total time: " +
                 TimeUnit.MILLISECONDS.toHours(millis) + ":" +
                 TimeUnit.MILLISECONDS.toMinutes(millis) % 60 + ":" +
                 TimeUnit.MILLISECONDS.toSeconds(millis) % 60
-    )
+        )
+    }
 
     stage = new JFXApp.PrimaryStage {
         title.value = "Scala Ray Tracer"

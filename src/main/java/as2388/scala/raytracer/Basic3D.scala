@@ -4,7 +4,7 @@ class Line (val point: Point, val vector: Vector) {
     def this(pointA: Point, pointB: Point) = this (pointA, (pointB subtract pointA) asVector() normalize())
 }
 
-class Point(val x: Double, val y: Double, val z: Double) {
+class Point(val x: Double, val y: Double, val z: Double) extends Object with Magnitude {
     def subtract(point: Point) = new Point(x - point.x, y - point.y, z - point.z)
 
     def add(point: Point) = new Point(x + point.x, y + point.y, z + point.z)
@@ -12,6 +12,8 @@ class Point(val x: Double, val y: Double, val z: Double) {
     def addVector(vector: Vector) = new Point(x + vector.x, y + vector.y, z + vector.z)
 
     def scalarMultiply(constant: Double) = new Point(x * constant, y * constant, z * constant)
+
+    def distanceTo(p: Point) = magnitude(new Vector(this, p))
 
     def translate(point: Point) = this add point
 
@@ -46,6 +48,8 @@ class Vector(val x: Double, val y: Double, val z: Double) extends Object with Ma
     def dot(v: Vector) = x * v.x + y * v.y + z * v.z
 
     def subtract(v: Vector) = new Vector(x - v.x, y - v.y, z - v.z)
+
+    def add(v: Vector) = new Vector(x + v.x, y + v.y, z + v.z)
 
     def cross(v: Vector) = new Vector(y * v.z - z * v.y, -(x * v.z - z * v.x), x * v.y - y * v.x)
 

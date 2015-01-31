@@ -2,7 +2,7 @@ package as2388.scala.raytracer
 
 import scalafx.scene.paint.Color
 
-class Sphere(val center: Point, val radius: Double, val diffusivity: Double, val reflectivity: Double, color: Color)
+class Sphere(val center: Point, val radius: Double, val diffusivity: Double, val reflectivity: Double, color: Color, val mass: Double)
         extends Shape with MinMax {
 
     override def color(point: Point): Color = color
