@@ -14,6 +14,7 @@ Current features:
  - Anti-aliasing
  - Depth of field (with anti-alias limited to middle 30%)
  - Movable, rotatable camera
+ - Multi-threaded
  
 In development:
 - Gravitational lensing
