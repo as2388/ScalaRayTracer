@@ -43,16 +43,16 @@ object WTF {
 }
 
 object GUI extends JFXApp {
-//    val size = new Size(3200, 1800)
-//    val mimage = new WritableImage(size.width, size.height)
-//    val pixelWriter = mimage.pixelWrit
-//
-//
-//    val tracer = new RayTracer(new CheckerboardConfiguration(size).getConfiguration)
-//    tracer writeToImage pixelWriter
-//
-//    val file = new File("test.png")
-//    ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
+    val size = new Size(3200, 1800)
+    val mimage = new WritableImage(size.width, size.height)
+    val pixelWriter = mimage.pixelWrit
+
+
+    val tracer = new RayTracer(new CheckerboardConfiguration(size).getConfiguration)
+    tracer writeToImage pixelWriter
+
+    val file = new File("test.png")
+    ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
 
 
 //    for (iter <- 90 to 270 if iter  == 158) {
@@ -78,15 +78,15 @@ object GUI extends JFXApp {
 //        )
 //    }
 
-//    stage = new JFXApp.PrimaryStage {
-//        title.value = "Scala Ray Tracer"
-//        width = size.width
-//        height = size.height
-//        scene = new Scene {
-//            content = new ImageView() {
-//                image = mimage
-//
-//            }
-//        }
-//    }
+    stage = new JFXApp.PrimaryStage {
+        title.value = "Scala Ray Tracer"
+        width = size.width
+        height = size.height
+        scene = new Scene {
+            content = new ImageView() {
+                image = mimage
+
+            }
+        }
+    }
 }

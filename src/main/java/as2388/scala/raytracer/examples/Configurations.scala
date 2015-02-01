@@ -76,25 +76,28 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
                     Nil,
 
             lights =
-                    new PointLight(new Point(-10, 50, 80), 0.60) ::
-                    new PointLight(new Point(-20, -50, 30), 0.30, ColorUtils.fromHex("EF9A9A")) ::
+//                    new PointLight(new Point(-10, 50, 80), 0.60) ::
+                    new VolumeLight(new Point(-10, 50, 80), 3.0, 0.60).getPointLights :::
+                    new VolumeLight(new Point(-20, -50, 30), 3.0, 0.30, ColorUtils.fromHex("EF9A9A")).getPointLights :::
                     Nil,
 
             camera = new Camera(
                 screenCentre = new Point(22, 5, 0), //(22, ...
                 distanceFromScreen = 70,
                 screenPixelDimensions = size,
-                pointsPerPixel = 0.02,//0.015,
+                pointsPerPixel = 0.015,
                 yaw = 0,
                 pitch = TAU / 16,
                 roll = 0
             ),
 
-            singularities =
-                    new Singularity(new Point(22, 5, 0), -0.005) ::
-                    Nil,
-
-            singularityDepthLimit = 200
+            antiAliasingMode = new AntiAliasingRegular(4)
+//
+//            singularities =
+//                    new Singularity(new Point(22, 5, 0), -0.005) ::
+//                    Nil,
+//
+//            singularityDepthLimit = 200
 
 //        enableReflections = false,
 //        enableDiffuse = false,
