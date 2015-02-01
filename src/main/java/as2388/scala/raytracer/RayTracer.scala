@@ -6,32 +6,6 @@ import scalafx.scene.image.PixelWriter
 import scalafx.scene.paint.Color
 
 class RayTracer(val configuration: Configuration) {
-    val TAU = 2 * Math.PI
-
-       //    ----------- CIRCLE RING --------------------
-//        val shapes: List[Shape] = new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8, 0.2, Color.rgb(238, 238, 238), Color.rgb(158, 158, 158)) ::
-//                buildCircle(new Point(22, 5, -2), 8, 2 * Math.PI / 9, 2 * Math.PI)
-//
-//
-//        def buildCircle(centre: Point, radius: Double, angleSize: Double, currentAngle: Double): List[Shape] =
-//            if (currentAngle <= 0) Nil
-//            else new Sphere(new Point(radius * Math.sin(currentAngle) + centre.x, radius * Math.cos(currentAngle) + centre.y, centre.z),
-//                1.2, 0.6, 0.4, Color.rgb(103, 58, 183)) ::
-//                    buildCircle(centre, radius, angleSize, currentAngle - angleSize)
-//
-//        val lights: List[PointLight] = new PointLight(new Point(22, 5, 5), 0.9) ::
-//                Nil
-//
-//        val camera = new Camera(
-//            viewPoint = new Point(-20, 5, 20),
-//            viewDirection = new Vector(0.65, 0, -0.35).normalize(),
-//            viewUp = new Vector(0.35, 0, 0.65).normalize(),
-//            distanceFromScreen = 15,
-//            screenPixelDimensions = new Size(2560, 1440),
-//            pointsPerPixel = 0.006
-//        )
-    //    ---------------------------------------
-
     val size = configuration.imageSize
     val shapes = configuration.shapes
     val lights = configuration.lights
@@ -40,7 +14,16 @@ class RayTracer(val configuration: Configuration) {
     val singularityDepthLimit = configuration.singularityDepthLimit
     val enableShadows = configuration.enableShadows
     val antiAliasingMode = configuration.antiAliasingMode
+    val focusMode = configuration.focusMode
 
+    /**
+     * Produces intersection data for the closest shape to intersect a line. If no intersection is found, returns null.
+     * If singularities are enabled, recursively simulates space-time warping.
+     * @param line          The line to find the closest intersection with
+     * @param distanceSoFar If using singularities, the distance travelled so far. If this reaches the
+     *                      singularityDepthLimit, recursion is terminated.
+     * @return              IntersectionData for closest intersecting shape if there is one, else null
+     */
     def closestShape(line: Line, distanceSoFar: Double): IntersectionData = {
         lazy val closest = (shapes map (_ closestIntersection line)).foldLeft(null: IntersectionData)((b, a) =>
             if (b == null && a != null && a.distance > 0) a
@@ -114,28 +97,28 @@ class RayTracer(val configuration: Configuration) {
         }
     }
 
-    def colorPixel(pixelPoint: PixelPoint) = {
-        val lineToPixel = camera lineToPixel pixelPoint
+    def colorPixel(pixelPoint: PixelPoint, yawChange: Double, pitchChange: Double) = {
+        val lineToPixel = camera lineToPixel (pixelPoint, yawChange, pitchChange)
         colorRay(lineToPixel, 1.0)
     }
 
-    def focus(pixelPoint: PixelPoint) = {
+    def focus(pixelPoint: PixelPoint, count: Int, angle: Double) = {
         val sampledSubPixels = for {
-            yawChange <- -TAU / 400 to TAU / 400 by TAU / 4000
-            pitchChange <- -TAU / 400 to TAU / 400 by TAU / 4000
+            yawChange <- -angle to angle by angle * 2 / count
+            pitchChange <- -angle to angle by angle * 2 / count
         } yield {
-            colorRay(camera lineToPixel(pixelPoint, yawChange, pitchChange), 1.0)
+            antiAliasingFunction(pixelPoint, yawChange, pitchChange)
         }
 
         averageColors(sampledSubPixels.toList)
     }
 
-    def antiAlias(pixelPoint: PixelPoint, count: Int) = {
+    def antiAlias(pixelPoint: PixelPoint, count: Int, yawChange: Double, pitchChange: Double) = {
         val sampledSubPixels = for {
             x <- -count / 2 to count / 2
             y <- -count / 2 to count / 2
         } yield {
-            colorPixel(new PixelPoint(pixelPoint.x + x.toDouble / 4, pixelPoint.y + y.toDouble / 4))
+            colorPixel(new PixelPoint(pixelPoint.x + x.toDouble / 4, pixelPoint.y + y.toDouble / 4), yawChange, pitchChange)
         }
 
         averageColors(sampledSubPixels.toList)
@@ -159,6 +142,16 @@ class RayTracer(val configuration: Configuration) {
             ((colors map (_.blue)).sum / colors.length * 255).toInt
         )
 
+    def antiAliasingFunction(pixelPoint: PixelPoint, yawChange: Double = 0, pitchChange: Double = 0) = antiAliasingMode match {
+        case AntiAliasingRegular(count) => antiAlias(pixelPoint, count, yawChange, pitchChange)
+        case AntiAliasingNone()         => colorPixel(pixelPoint, yawChange, pitchChange)
+    }
+
+    def focusFunction(pixelPoint: PixelPoint) = focusMode match {
+        case FocusSome(count, angle)    => focus(pixelPoint, count, angle)
+        case FocusNone()                => antiAliasingFunction(pixelPoint)
+    }
+
     /**
      * Multiplies each field of a color by a given intensity
      * @param color         Color to modify
@@ -171,13 +164,8 @@ class RayTracer(val configuration: Configuration) {
     def writeToImage(writer: PixelWriter) = {
         var remaining = size.width
 
-        def antiAliasingFunction(pixelPoint: PixelPoint) = antiAliasingMode match {
-            case Regular(count) => antiAlias(pixelPoint, count)
-            case None()         => colorPixel(pixelPoint)
-        }
-
         (0 to size.width - 1).par foreach (x => {
-            (0 to size.height - 1) foreach (y => writer setColor(x, y, antiAliasingFunction(new PixelPoint(x, y))))
+            (0 to size.height - 1) foreach (y => writer setColor(x, y, focusFunction(new PixelPoint(x, y))))
             remaining -= 1
             if (remaining % 20 == 0)
                 println((((size.width - remaining).toDouble / size.width.toDouble) * 10000).floor / 100 + "% done (" + remaining + " columns remain)")

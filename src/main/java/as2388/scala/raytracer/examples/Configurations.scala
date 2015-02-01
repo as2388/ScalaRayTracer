@@ -93,8 +93,39 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
                 roll = 0
             ),
 
-            antiAliasingMode = new Regular(5)
+            focusMode = new FocusSome(3, TAU / 400)
+
+//            focusMode = new FocusSome(100, TAU / 400)
+
         )
     }
 }
+
+
+
+
+
+//    ----------- CIRCLE RING --------------------
+//        val shapes: List[Shape] = new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8, 0.2, Color.rgb(238, 238, 238), Color.rgb(158, 158, 158)) ::
+//                buildCircle(new Point(22, 5, -2), 8, 2 * Math.PI / 9, 2 * Math.PI)
+//
+//
+//        def buildCircle(centre: Point, radius: Double, angleSize: Double, currentAngle: Double): List[Shape] =
+//            if (currentAngle <= 0) Nil
+//            else new Sphere(new Point(radius * Math.sin(currentAngle) + centre.x, radius * Math.cos(currentAngle) + centre.y, centre.z),
+//                1.2, 0.6, 0.4, Color.rgb(103, 58, 183)) ::
+//                    buildCircle(centre, radius, angleSize, currentAngle - angleSize)
+//
+//        val lights: List[PointLight] = new PointLight(new Point(22, 5, 5), 0.9) ::
+//                Nil
+//
+//        val camera = new Camera(
+//            viewPoint = new Point(-20, 5, 20),
+//            viewDirection = new Vector(0.65, 0, -0.35).normalize(),
+//            viewUp = new Vector(0.35, 0, 0.65).normalize(),
+//            distanceFromScreen = 15,
+//            screenPixelDimensions = new Size(2560, 1440),
+//            pointsPerPixel = 0.006
+//        )
+//    ---------------------------------------
 
