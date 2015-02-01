@@ -1,8 +1,6 @@
 package as2388.scala.raytracer.shapes
 
-import as2388.scala.raytracer.{IntersectionData, Line, Point}
-
-import scalafx.scene.paint.Color
+import as2388.scala.raytracer.{Color, IntersectionData, Line, Point}
 
 trait Shape {
     def diffusivity: Double

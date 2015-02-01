@@ -3,7 +3,6 @@ package as2388.scala.raytracer
 import as2388.scala.raytracer.shapes.Shape
 
 import scalafx.scene.image.PixelWriter
-import scalafx.scene.paint.Color
 
 class RayTracer(val configuration: Configuration) {
     val size = configuration.imageSize
@@ -49,15 +48,20 @@ class RayTracer(val configuration: Configuration) {
         }
     }
 
-    def diffuseIntensity(intersectionData: IntersectionData) =
+    def diffuseColor(intersectionData: IntersectionData): Color =
         lights.map(light =>
             if (inShadow(shapes, new Line(
                 intersectionData.intersectionPoint,
                 new Vector(light.location, intersectionData.intersectionPoint)), intersectionData.shape)
-            ) 0
-            else (intersectionData.normal dot (new Vector(light.location, intersectionData.intersectionPoint) normalize()))
-                    * light.intensity
-        ).filter(_ > 0).sum
+            ) new Color(0, 0, 0)
+            else {
+                val normal = intersectionData.normal dot (new Vector(
+                    light.location, intersectionData.intersectionPoint) normalize())
+
+                if (normal > 0) light.color * (normal * light.intensity)
+                else new Color(0, 0, 0)
+            }
+        ).foldLeft(new Color(0, 0, 0))((b, a) => a + b)
 
     /**
      * Returns true if the line from an intersection point intersects another shape; false otherwise
@@ -74,12 +78,12 @@ class RayTracer(val configuration: Configuration) {
     def colorRay(line: Line, impact: Double): Color = {
         val closestIntersection: IntersectionData = closestShape(line, 0)
 
-        if (closestIntersection == null || impact < 0.05) Color.rgb(0, 0, 0) //Color.rgb(38, 50, 56)
+        if (closestIntersection == null || impact < 0.05) new Color(0, 0, 0)
         else {
-            val diffuseIllumination = diffuseIntensity(closestIntersection)
-            val ambientIllumination = 0.1
-            val diffuseAmbientColor = colorMultiply(closestIntersection.shape.color(closestIntersection.intersectionPoint),
-                (diffuseIllumination + ambientIllumination) * closestIntersection.shape.diffusivity)
+            val diffuse: Color = diffuseColor(closestIntersection) * closestIntersection.shape.diffusivity *
+                    closestIntersection.shape.color(closestIntersection.intersectionPoint)
+            val ambient: Color = closestIntersection.shape.color(closestIntersection.intersectionPoint) * 0.1
+            val diffuseAmbientColor = diffuse + ambient
 
             if (closestIntersection.shape.reflectivity == 0) diffuseAmbientColor
             else {
@@ -88,11 +92,8 @@ class RayTracer(val configuration: Configuration) {
                 val specularColor = colorRay(reflectedRay, impact * closestIntersection.shape.reflectivity)
 
                 val reflectivity = closestIntersection.shape.reflectivity
-                Color.rgb(
-                    ((diffuseAmbientColor.red + specularColor.red * reflectivity) * 255).toInt,
-                    ((diffuseAmbientColor.green + specularColor.green * reflectivity) * 255).toInt,
-                    ((diffuseAmbientColor.blue + specularColor.blue * reflectivity) * 255).toInt
-                )
+
+                diffuseAmbientColor + (specularColor * reflectivity)
             }
         }
     }
@@ -136,10 +137,10 @@ class RayTracer(val configuration: Configuration) {
      * @return Average color of list
      */
     def averageColors(colors: List[Color]) =
-        Color.rgb(
-            ((colors map (_.red)).sum / colors.length * 255).toInt,
-            ((colors map (_.green)).sum / colors.length * 255).toInt,
-            ((colors map (_.blue)).sum / colors.length * 255).toInt
+        new Color(
+            colors.map(_.r).sum / colors.length,
+            colors.map(_.g).sum / colors.length,
+            colors.map(_.b).sum / colors.length
         )
 
     def antiAliasingFunction(pixelPoint: PixelPoint, yawChange: Double = 0, pitchChange: Double = 0) = antiAliasingMode match {
@@ -152,20 +153,11 @@ class RayTracer(val configuration: Configuration) {
         case FocusNone()                => antiAliasingFunction(pixelPoint)
     }
 
-    /**
-     * Multiplies each field of a color by a given intensity
-     * @param color         Color to modify
-     * @param intensity     Intensity to multiply by
-     * @return
-     */
-    def colorMultiply(color: Color, intensity: Double) =
-        Color.rgb((color.red * 255 * intensity).toInt, (color.green * 255 * intensity).toInt, (color.blue * 255 * intensity).toInt)
-
     def writeToImage(writer: PixelWriter) = {
         var remaining = size.width
 
         (0 to size.width - 1).par foreach (x => {
-            (0 to size.height - 1) foreach (y => writer setColor(x, y, focusFunction(new PixelPoint(x, y))))
+            (0 to size.height - 1) foreach (y => writer setColor(x, y, focusFunction(new PixelPoint(x, y)).toScalaFXColor))
             remaining -= 1
             if (remaining % 20 == 0)
                 println((((size.width - remaining).toDouble / size.width.toDouble) * 10000).floor / 100 + "% done (" + remaining + " columns remain)")

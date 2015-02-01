@@ -15,10 +15,8 @@ class Configuration(
 )
 
 /*
-    Size
     Multithread
     Progress interval
-    Depth of field = None | Some(angle, count)
     Diffuse illumination
     Reflections
     Adaptive AntiAlias

@@ -2,8 +2,6 @@ package as2388.scala.raytracer.shapes
 
 import as2388.scala.raytracer._
 
-import scalafx.scene.paint.Color
-
 class Plane(val normal: Vector, val distance: Double,
             val diffusivity: Double, val reflectivity: Double, val color: Color) extends Shape {
     override def color(point: Point): Color = color

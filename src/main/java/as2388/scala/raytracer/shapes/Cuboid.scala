@@ -2,8 +2,6 @@ package as2388.scala.raytracer.shapes
 
 import as2388.scala.raytracer._
 
-import scalafx.scene.paint.Color
-
 class Cuboid(val center: Point, val XScale: Double, val YScale: Double, val ZScale: Double,
              val XRot: Double, val YRot: Double, val ZRot: Double,
              val diffusivity: Double, val reflectivity: Double, val color: Color)
