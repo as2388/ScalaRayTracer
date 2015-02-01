@@ -1,21 +1,21 @@
 package as2388.scala.raytracer
 
 class Line (val point: Point, val vector: Vector) {
-    def this(pointA: Point, pointB: Point) = this (pointA, (pointB subtract pointA) asVector() normalize())
+    def this(pointA: Point, pointB: Point) = this (pointA, (pointB - pointA) asVector() normalize())
 }
 
 class Point(val x: Double, val y: Double, val z: Double) extends Object with Magnitude {
-    def subtract(point: Point) = new Point(x - point.x, y - point.y, z - point.z)
+    def -(point: Point) = new Point(x - point.x, y - point.y, z - point.z)
 
-    def add(point: Point) = new Point(x + point.x, y + point.y, z + point.z)
+    def +(point: Point) = new Point(x + point.x, y + point.y, z + point.z)
 
-    def addVector(vector: Vector) = new Point(x + vector.x, y + vector.y, z + vector.z)
+    def +(vector: Vector) = new Point(x + vector.x, y + vector.y, z + vector.z)
 
-    def scalarMultiply(constant: Double) = new Point(x * constant, y * constant, z * constant)
+    def *(constant: Double) = new Point(x * constant, y * constant, z * constant)
 
     def distanceTo(p: Point) = magnitude(new Vector(this, p))
 
-    def translate(point: Point) = this add point
+    def translate(point: Point) = this + point
 
     def rotateY(angle: Double) = new Point(
         Math.cos(angle) * x + Math.sin(angle) * z,
@@ -41,15 +41,15 @@ class Point(val x: Double, val y: Double, val z: Double) extends Object with Mag
 class Vector(val x: Double, val y: Double, val z: Double) extends Object with Magnitude {
     def this(pointA: Point, pointB: Point) = this(pointA.x - pointB.x, pointA.y - pointB.y, pointA.z - pointB.z)
 
-    def normalize(): Vector = scalarMultiply(1 / magnitude(this))
+    def normalize(): Vector = *(1 / magnitude(this))
 
-    def scalarMultiply(constant: Double) = new Vector(x * constant, y * constant, z * constant)
+    def *(constant: Double) = new Vector(x * constant, y * constant, z * constant)
 
     def dot(v: Vector) = x * v.x + y * v.y + z * v.z
 
-    def subtract(v: Vector) = new Vector(x - v.x, y - v.y, z - v.z)
+    def -(v: Vector) = new Vector(x - v.x, y - v.y, z - v.z)
 
-    def add(v: Vector) = new Vector(x + v.x, y + v.y, z + v.z)
+    def +(v: Vector) = new Vector(x + v.x, y + v.y, z + v.z)
 
     def cross(v: Vector) = new Vector(y * v.z - z * v.y, -(x * v.z - z * v.x), x * v.y - y * v.x)
 

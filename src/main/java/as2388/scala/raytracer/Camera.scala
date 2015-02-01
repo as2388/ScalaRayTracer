@@ -9,10 +9,10 @@ class Camera(val screenCentre: Point, val distanceFromScreen: Double, val screen
         val yaw = this.yaw + yawChange
         val pitch = this.pitch + pitchChange
 
-        val viewLocation: Point = screenCentre subtract new Point(0, 0, 0)
+        val viewLocation: Point = screenCentre - new Point(0, 0, 0)
 
         //translate screen centre to (0, 0, 0)
-        val centeredViewLocation = viewLocation translate (screenCentre scalarMultiply -1)
+        val centeredViewLocation = viewLocation translate (screenCentre * -1)
 
         //Modify viewing location based on yaw and pitch
         val centeredRotatedViewLocation = (centeredViewLocation rotateZ yaw) rotateY pitch
@@ -28,11 +28,11 @@ class Camera(val screenCentre: Point, val distanceFromScreen: Double, val screen
         val screenPixelPoint = new PixelPoint(point.x - halfWidth, point.y - halfHeight) //point on screen in pixels
         val screenWorldPoint = screenPixelPoint scalarMultiply pointsPerPixel //point on screen in 2D, scaled to world co-ordinates
 
-        val worldPoint = screenCentre
-                .addVector(viewRight scalarMultiply screenWorldPoint.x)
-                .addVector(viewUp scalarMultiply -screenWorldPoint.y)
+        val worldPoint = screenCentre +
+                (viewRight * screenWorldPoint.x) +
+                (viewUp * -screenWorldPoint.y)
 
-        new Line(screenCentre addVector (viewDirection scalarMultiply -distanceFromScreen), worldPoint)
+        new Line(screenCentre + (viewDirection * -distanceFromScreen), worldPoint)
     }
 }
 

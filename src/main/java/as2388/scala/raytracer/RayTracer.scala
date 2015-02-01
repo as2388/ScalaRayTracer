@@ -38,12 +38,13 @@ class RayTracer(val configuration: Configuration) {
             case _ =>
                 if (distanceSoFar > singularityDepthLimit) null
                 else if (closest == null || closest.distance > 1) {
-                    val endPoint = line.point add line.vector.scalarMultiply(1).asPoint()
+                    val endPoint = (line.point + (line.vector * 1))
 
-                    val gravitationalForces: List[Vector] = singularities map (singularity => new Vector(endPoint, singularity.location)
-                            scalarMultiply (singularity.strength / Math.pow(endPoint distanceTo singularity.location, 1)))
+                    val gravitationalForces: List[Vector] = singularities map (singularity =>
+                        new Vector(endPoint, singularity.location) *
+                            (singularity.strength / Math.pow(endPoint distanceTo singularity.location, 1)))
 
-                    val newVector = gravitationalForces.foldLeft(line.vector)((b: Vector, a: Vector) => a add b) normalize()
+                    val newVector = gravitationalForces.foldLeft(line.vector)((b: Vector, a: Vector) => a + b) normalize()
 
                     closestShape(new Line(endPoint, newVector), distanceSoFar + 1)
                 }
@@ -93,7 +94,7 @@ class RayTracer(val configuration: Configuration) {
 
             if (closestIntersection.shape.reflectivity == 0 || !enableReflections) diffuseAmbientColor
             else {
-                val reflectedVector: Vector = line.vector subtract (closestIntersection.normal scalarMultiply (line.vector dot closestIntersection.normal) * 2) //don't need to normalize
+                val reflectedVector: Vector = line.vector - (closestIntersection.normal * (line.vector dot closestIntersection.normal) * 2) //don't need to normalize
                 val reflectedRay = new Line(closestIntersection.intersectionPoint, reflectedVector)
                 val specularColor = colorRay(reflectedRay, impact * closestIntersection.shape.reflectivity)
 

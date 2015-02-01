@@ -11,7 +11,7 @@ class Plane(val normal: Vector, val distance: Double,
 
         if (closestDistance < 0) null
         else new IntersectionData(closestDistance,
-            ((line.vector scalarMultiply closestDistance) asPoint() addVector (normal scalarMultiply 0.000001)) add line.point,
+            (((line.vector * closestDistance) asPoint()) + (normal * 0.000001)) + line.point,
             normal, this) //0.0001 adds a tiny bit to the normal, to avoid floating point errors affecting shadow computations
     }
 }
@@ -35,13 +35,13 @@ class FinitePlane(normal: Vector, distance: Double, diffusivity: Double, reflect
     override def closestIntersection(line: Line) : IntersectionData = {
         if ((line.vector dot normal) >= 0) null
         else {
-            val testLine = new Line(line.point subtract translationOffset, line.vector)
+            val testLine = new Line(line.point - translationOffset, line.vector)
             val closestIntersection = super.closestIntersection(testLine)
             if (closestIntersection == null) null
             else {
                 if (insidePlane(closestIntersection.intersectionPoint)) new IntersectionData(
                     closestIntersection.distance,
-                    closestIntersection.intersectionPoint add translationOffset,
+                    closestIntersection.intersectionPoint + translationOffset,
                     closestIntersection.normal,
                     closestIntersection.shape
                 )
@@ -57,8 +57,8 @@ class FinitePlane(normal: Vector, distance: Double, diffusivity: Double, reflect
         case Nil => 0
         case v :: Nil => 0
         case v1 :: v2 :: vs =>
-            val p1 = v1 subtract testPoint asVector()
-            val p2 = v2 subtract testPoint asVector()
+            val p1 = v1 - testPoint asVector()
+            val p2 = v2 - testPoint asVector()
             val m1m2 = magnitude(p1) * magnitude(p2)
 
             if (m1m2 <= 0.00001) TAU
