@@ -1,48 +1,10 @@
 package as2388.scala.raytracer
 
-import scala.util.Random
 import scalafx.scene.image.PixelWriter
 import scalafx.scene.paint.Color
 
-class RayTracer(val size: Size, val iter: Double) {
+class RayTracer(val configuration: Configuration) {
     val TAU = 2 * Math.PI
-
-    val shapes: List[Shape] =
-//        new Sphere(new Point(22, 5, 0), 0, 1.0, 0.0, Color.rgb(233, 30, 99)) :: //Pink 500
-        //new Sphere(new Point(28, 5 + (iter / 10), 0), 2, 1.0, 0, Color.rgb(103, 58, 183), 0) :: //Deep Purple 500
-        new Sphere(new Point(28, 5 + (iter / 10), 0), 2, 1.0, 0, Color.rgb(255, 193, 7)) :: //Deep Purple 500
-//        new Sphere(new Point(32, 5, (iter / 10) + 3), 2, 1.0, 0, Color.rgb(58, 103, 183), 0) :: //Deep Purple 500
-//                new Sphere(new Point(21, 9, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
-//                new Sphere(new Point(36, -8, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
-//                new Sphere(new Point(15, 18, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
-//                new Sphere(new Point(10, -12, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
-//    //
-//                new Sphere(new Point(40, 12, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
-//                new Sphere(new Point(3, -7, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
-//                new Sphere(new Point(14, 0, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple 500
-//                new Sphere(new Point(80, 19, -2), 1, 0.5, 0.5, Color.rgb(103, 58, 183)) :: //Deep Purple
-//                new Cuboid(
-//                    center = new Point(8, -10, -0.5),
-//                    XScale = 8, YScale = 2, ZScale = 5,
-//                    XRot = 0, YRot = 0, ZRot = TAU / 5,
-//                    diffusivity = 0.5, reflectivity = 0.5,
-//                    color = Color.rgb(76, 175, 80)
-//                ) ::
-//                new Cuboid(
-//                    center = new Point(58, 25, -1.5),
-//                    XScale = 3, YScale = 3, ZScale = 3,
-//                    XRot = 0, YRot = 0, ZRot = -TAU / 5,
-//                    diffusivity = 0.35, reflectivity = 0.75,
-//                    color = Color.rgb(0, 150, 136)
-//                ) ::
-//                new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8, 0.2, Color.rgb(238, 238, 238), Color.rgb(158, 158, 158), 0) ::
-                Nil
-
-    val singularities: List[Singularity] =
-        new Singularity(new Point(22, 5, 0), -0.037) ::
-        Nil
-
-    val singularityDepthLimit = 100
 
 //    val randomizer = new Random()
 //    val shapes: List[Shape] =
@@ -55,24 +17,7 @@ class RayTracer(val size: Size, val iter: Double) {
 //            color = Color.rgb(76, 175, 80)
 //        )))
 
-    val lights: List[PointLight] =
-                new PointLight(new Point(-10, 50, 80), 0.30) ::
-                new PointLight(new Point(54, 50, 80), 0.30) ::
-                new PointLight(new Point(-20, -50, 50), 0.2) ::
-                new PointLight(new Point(28, 5, -70), 0.20) ::
-                Nil
-
-    val camera = new Camera(
-        screenCentre = new Point(22, 5, 0), //(22, ...
-        distanceFromScreen = 70,
-        screenPixelDimensions = size,
-        pointsPerPixel = 3.5,
-        yaw = 0,
-        pitch = 0,//TAU / 16,
-        roll = 0
-    )
-
-    //    ----------- CIRCLE RING --------------------
+       //    ----------- CIRCLE RING --------------------
 //        val shapes: List[Shape] = new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8, 0.2, Color.rgb(238, 238, 238), Color.rgb(158, 158, 158)) ::
 //                buildCircle(new Point(22, 5, -2), 8, 2 * Math.PI / 9, 2 * Math.PI)
 //
@@ -95,6 +40,13 @@ class RayTracer(val size: Size, val iter: Double) {
 //            pointsPerPixel = 0.006
 //        )
     //    ---------------------------------------
+
+    val size = configuration.imageSize
+    val shapes = configuration.shapes
+    val lights = configuration.lights
+    val camera = configuration.camera
+    val singularities = configuration.singularities
+    val singularityDepthLimit = configuration.singularityDepthLimit
 
     def closestShape(line: Line, distanceSoFar: Double): IntersectionData = {
         lazy val closest = (shapes map (_ closestIntersection line)).foldLeft(null: IntersectionData)((b, a) =>
@@ -138,8 +90,8 @@ class RayTracer(val size: Size, val iter: Double) {
      * @param ignoreShape       Shape to exclude from check (should probably be shape we're checking if is in shadow
      * @return
      */
-    def inShadow(shapes: List[Shape], line: Line, ignoreShape: Shape) = false
-        //((shapes filter (_ != ignoreShape)) map (_ closestIntersection line) count (x => x != null && x.distance > 0)) != 0
+    def inShadow(shapes: List[Shape], line: Line, ignoreShape: Shape) =
+        ((shapes filter (_ != ignoreShape)) map (_ closestIntersection line) count (x => x != null && x.distance > 0)) != 0
 
     def colorRay(line: Line, impact: Double): Color = {
         val closestIntersection: IntersectionData = closestShape(line, 0)
