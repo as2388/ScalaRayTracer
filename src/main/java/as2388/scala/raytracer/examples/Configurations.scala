@@ -45,7 +45,6 @@ class LenseConfiguration(val size: Size, val iter: Double) extends Configuration
 
 class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
     lazy val TAU = 2 * Math.PI
-    val randomizer = new Random()
     override def getConfiguration = {
         new Configuration(
             imageSize = size,
@@ -78,8 +77,8 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
                     Nil,
 
             lights =
-                    new PointLight(new Point(-10, 50, 80), 0.30, ColorUtils.fromHex("EF9A9A")) ::
-                    new PointLight(new Point(-20, -50, 30), 0.60) ::
+                    new PointLight(new Point(-10, 50, 80), 0.60) ::
+                    new PointLight(new Point(-20, -50, 30), 0.30, ColorUtils.fromHex("EF9A9A")) ::
                     Nil,
 
             camera = new Camera(
