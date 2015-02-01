@@ -3,6 +3,7 @@ package as2388.scala.raytracer.examples
 import as2388.scala.raytracer._
 import as2388.scala.raytracer.shapes.{CheckeredPlane, Cuboid, Sphere}
 
+
 abstract class ConfigurationManager {
     def getConfiguration: Configuration
 }
@@ -83,11 +84,22 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
                 screenCentre = new Point(22, 5, 0), //(22, ...
                 distanceFromScreen = 70,
                 screenPixelDimensions = size,
-                pointsPerPixel = 0.015,
+                pointsPerPixel = 0.02,//0.015,
                 yaw = 0,
                 pitch = TAU / 16,
                 roll = 0
-            )
+            ),
+
+            singularities =
+                    new Singularity(new Point(22, 5, 0), -0.005) ::
+                    Nil,
+
+            singularityDepthLimit = 200
+
+//        enableReflections = false,
+//        enableDiffuse = false,
+//        ambientIntensity = 1.0
+
 
 
 //            focusMode = new FocusSome(100, TAU / 400)
