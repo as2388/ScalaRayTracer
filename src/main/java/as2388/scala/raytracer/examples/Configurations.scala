@@ -3,8 +3,6 @@ package as2388.scala.raytracer.examples
 import as2388.scala.raytracer._
 import as2388.scala.raytracer.shapes.{Sphere, CheckeredPlane, Cuboid}
 
-import scala.util.Random
-
 abstract class ConfigurationManager {
     def getConfiguration: Configuration
 }

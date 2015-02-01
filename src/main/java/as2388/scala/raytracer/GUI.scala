@@ -1,13 +1,8 @@
 package as2388.scala.raytracer
 
-import java.io.File
-import java.util.concurrent.TimeUnit
-import javax.imageio.ImageIO
-
-import as2388.scala.raytracer.examples.{CheckerboardConfiguration, LenseConfiguration}
+import as2388.scala.raytracer.examples.CheckerboardConfiguration
 
 import scalafx.application.JFXApp
-import scalafx.embed.swing.SwingFXUtils
 import scalafx.scene.Scene
 import scalafx.scene.image.{ImageView, WritableImage}
 import scalafx.scene.paint.Color
