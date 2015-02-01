@@ -88,7 +88,11 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
                 yaw = 0,
                 pitch = TAU / 16,
                 roll = 0
-            )
+            ),
+
+            antiAliasingMode = new Regular(5)
+
         )
     }
 }
+

@@ -47,6 +47,8 @@ class RayTracer(val configuration: Configuration) {
     val camera = configuration.camera
     val singularities = configuration.singularities
     val singularityDepthLimit = configuration.singularityDepthLimit
+    val enableShadows = configuration.enableShadows
+    val antiAliasingMode = configuration.antiAliasingMode
 
     def closestShape(line: Line, distanceSoFar: Double): IntersectionData = {
         lazy val closest = (shapes map (_ closestIntersection line)).foldLeft(null: IntersectionData)((b, a) =>
@@ -90,8 +92,10 @@ class RayTracer(val configuration: Configuration) {
      * @param ignoreShape       Shape to exclude from check (should probably be shape we're checking if is in shadow
      * @return
      */
-    def inShadow(shapes: List[Shape], line: Line, ignoreShape: Shape) =
-        ((shapes filter (_ != ignoreShape)) map (_ closestIntersection line) count (x => x != null && x.distance > 0)) != 0
+    def inShadow(shapes: List[Shape], line: Line, ignoreShape: Shape) = enableShadows match {
+        case true => ((shapes filter (_ != ignoreShape)) map (_ closestIntersection line) count (x => x != null && x.distance > 0)) != 0
+        case _ => false
+    }
 
     def colorRay(line: Line, impact: Double): Color = {
         val closestIntersection: IntersectionData = closestShape(line, 0)
@@ -135,10 +139,10 @@ class RayTracer(val configuration: Configuration) {
         averageColors(sampledSubPixels.toList)
     }
 
-    def antiAlias(pixelPoint: PixelPoint) = {
+    def antiAlias(pixelPoint: PixelPoint, count: Int) = {
         val sampledSubPixels = for {
-            x <- -2 to 2
-            y <- -2 to 2
+            x <- -count / 2 to count / 2
+            y <- -count / 2 to count / 2
         } yield {
             colorPixel(new PixelPoint(pixelPoint.x + x.toDouble / 4, pixelPoint.y + y.toDouble / 4))
         }
@@ -146,11 +150,11 @@ class RayTracer(val configuration: Configuration) {
         averageColors(sampledSubPixels.toList)
     }
 
-    def adaptiveAntiAlias(pixelPoint: PixelPoint) = {
-        if (pixelPoint.x < 0.35 * size.width || pixelPoint.y > 0.65 * size.width ||
-            pixelPoint.y < 0.35 * size.height || pixelPoint.y > 0.65 * size.height) focus(pixelPoint)
-        else antiAlias(pixelPoint)
-    }
+//    def adaptiveAntiAlias(pixelPoint: PixelPoint) = {
+//        if (pixelPoint.x < 0.35 * size.width || pixelPoint.y > 0.65 * size.width ||
+//            pixelPoint.y < 0.35 * size.height || pixelPoint.y > 0.65 * size.height) focus(pixelPoint)
+//        else antiAlias(pixelPoint)
+//    }
 
     /**
      * Given a list of colors, returns a new color with the list's (r,g,b) values averaged
@@ -175,8 +179,14 @@ class RayTracer(val configuration: Configuration) {
 
     def writeToImage(writer: PixelWriter) = {
         var remaining = size.width
+
+        def antiAliasingFunction(pixelPoint: PixelPoint) = antiAliasingMode match {
+            case Regular(count) => antiAlias(pixelPoint, count)
+            case None()         => colorPixel(pixelPoint)
+        }
+
         (0 to size.width - 1).par foreach (x => {
-            (0 to size.height - 1) foreach (y => writer setColor(x, y, colorPixel(new PixelPoint(x, y))))
+            (0 to size.height - 1) foreach (y => writer setColor(x, y, antiAliasingFunction(new PixelPoint(x, y))))
             remaining -= 1
             if (remaining % 20 == 0)
                 println((((size.width - remaining).toDouble / size.width.toDouble) * 10000).floor / 100 + "% done (" + remaining + " columns remain)")
