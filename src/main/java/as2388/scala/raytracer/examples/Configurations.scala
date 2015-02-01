@@ -91,6 +91,8 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
                 pitch = TAU / 16,
                 roll = 0
             )
+
+
 //            focusMode = new FocusSome(100, TAU / 400)
 
         )

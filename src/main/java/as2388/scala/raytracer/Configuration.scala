@@ -6,10 +6,13 @@ class Configuration(
        val imageSize: Size,
        val shapes: List[Shape],
        val lights: List[PointLight],
+       val ambientIntensity: Double = 0.1,
        val camera: Camera,
        val singularities: List[Singularity] = Nil,
        val singularityDepthLimit: Double = 100,
        val enableShadows: Boolean = true,
+       val enableDiffuse: Boolean = true,
+       val enableReflections: Boolean = true,
        val antiAliasingMode: AntiAliasingMode = new AntiAliasingNone,
        val focusMode: FocusMode = new FocusNone
 )
@@ -17,8 +20,6 @@ class Configuration(
 /*
     Multithread
     Progress interval
-    Diffuse illumination
-    Reflections
     Adaptive AntiAlias
 
     TODO:

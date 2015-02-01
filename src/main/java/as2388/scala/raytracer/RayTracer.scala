@@ -8,10 +8,13 @@ class RayTracer(val configuration: Configuration) {
     val size = configuration.imageSize
     val shapes = configuration.shapes
     val lights = configuration.lights
+    val ambientIntensity = configuration.ambientIntensity
     val camera = configuration.camera
     val singularities = configuration.singularities
     val singularityDepthLimit = configuration.singularityDepthLimit
     val enableShadows = configuration.enableShadows
+    val enableDiffuse = configuration.enableDiffuse
+    val enableReflections = configuration.enableReflections
     val antiAliasingMode = configuration.antiAliasingMode
     val focusMode = configuration.focusMode
 
@@ -80,12 +83,15 @@ class RayTracer(val configuration: Configuration) {
 
         if (closestIntersection == null || impact < 0.05) new Color(0, 0, 0)
         else {
-            val diffuse: Color = diffuseColor(closestIntersection) * closestIntersection.shape.diffusivity *
-                    closestIntersection.shape.color(closestIntersection.intersectionPoint)
-            val ambient: Color = closestIntersection.shape.color(closestIntersection.intersectionPoint) * 0.1
+            val diffuse: Color = enableDiffuse match {
+                case true => diffuseColor (closestIntersection) * closestIntersection.shape.diffusivity *
+                    closestIntersection.shape.color (closestIntersection.intersectionPoint)
+                case _    => new Color(0, 0, 0)
+            }
+            val ambient: Color = closestIntersection.shape.color(closestIntersection.intersectionPoint) * ambientIntensity
             val diffuseAmbientColor = diffuse + ambient
 
-            if (closestIntersection.shape.reflectivity == 0) diffuseAmbientColor
+            if (closestIntersection.shape.reflectivity == 0 || !enableReflections) diffuseAmbientColor
             else {
                 val reflectedVector: Vector = line.vector subtract (closestIntersection.normal scalarMultiply (line.vector dot closestIntersection.normal) * 2) //don't need to normalize
                 val reflectedRay = new Line(closestIntersection.intersectionPoint, reflectedVector)
