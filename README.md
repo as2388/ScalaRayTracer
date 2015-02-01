@@ -12,7 +12,8 @@ Current features:
    - Diffuse illumination
    - Ambient illumination
    - Shadows
-   - Adaptive reflections
+   - Coloured point light sources
+   - Reflections
  - Anti-aliasing
  - Depth of field (with anti-alias limited to middle 30%)
  - Movable, rotatable camera
