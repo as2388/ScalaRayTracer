@@ -1,5 +1,7 @@
 package as2388.scala.raytracer
 
+import as2388.scala.raytracer.shapes.Shape
+
 import scalafx.scene.image.PixelWriter
 import scalafx.scene.paint.Color
 

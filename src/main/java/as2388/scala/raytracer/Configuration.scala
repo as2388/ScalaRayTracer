@@ -1,5 +1,6 @@
 package as2388.scala.raytracer
 
+import as2388.scala.raytracer.shapes.Shape
 
 class Configuration(
        val imageSize: Size,
