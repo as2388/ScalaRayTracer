@@ -1,7 +1,7 @@
 package as2388.scala.raytracer.examples
 
 import as2388.scala.raytracer._
-import as2388.scala.raytracer.shapes.{Sphere, CheckeredPlane, Cuboid}
+import as2388.scala.raytracer.shapes.{CheckeredPlane, Cuboid, Sphere}
 
 abstract class ConfigurationManager {
     def getConfiguration: Configuration

@@ -5,7 +5,6 @@ import as2388.scala.raytracer.examples.CheckerboardConfiguration
 import scalafx.application.JFXApp
 import scalafx.scene.Scene
 import scalafx.scene.image.{ImageView, WritableImage}
-import scalafx.scene.paint.Color
 
 object GUI extends JFXApp {
     val size = new Size(3200, 1800)
@@ -45,7 +44,6 @@ object GUI extends JFXApp {
         width = size.width
         height = size.height
         scene = new Scene {
-            fill = Color.Red
             content = new ImageView() {
                 image = mimage
 
