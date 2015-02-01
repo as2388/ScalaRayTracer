@@ -22,7 +22,7 @@ object GUI extends JFXApp {
     tracer writeToImage pixelWriter
 
 
-//    for (iter <- 90 to 270 if iter % 5 == 0 || (iter > 152 && iter < 176)) {
+//    for (iter <- 90 to 270 if iter  == 158) {
 //        val time = System.currentTimeMillis()
 //        println("Intialising RayTracer...")
 //        val tracer = new RayTracer(new LenseConfiguration(size, iter - 180).getConfiguration)
@@ -34,7 +34,7 @@ object GUI extends JFXApp {
 //        println("Tracing complete")
 //
 //        println("Writing to file " + iter + ".png...")
-//        val file = new File(iter + ".png")
+//        val file = new File(159 + ".png")
 //        ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
 //
 //        val millis = System.currentTimeMillis() - time

@@ -1,4 +1,6 @@
-package as2388.scala.raytracer
+package as2388.scala.raytracer.shapes
+
+import as2388.scala.raytracer._
 
 import scalafx.scene.paint.Color
 

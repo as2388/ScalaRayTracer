@@ -1,7 +1,9 @@
 package as2388.scala.raytracer.examples
 
 import as2388.scala.raytracer._
+import as2388.scala.raytracer.shapes.{Sphere, CheckeredPlane, Cuboid}
 
+import scala.util.Random
 import scalafx.scene.paint.Color
 
 abstract class ConfigurationManager {
@@ -27,7 +29,7 @@ class LenseConfiguration(val size: Size, val iter: Double) extends Configuration
                 screenCentre = new Point(22, 5, 0), //(22, ...
                 distanceFromScreen = 70,
                 screenPixelDimensions = size,
-                pointsPerPixel = 3.5,
+                pointsPerPixel = .35,
                 yaw = 0,
                 pitch = 0,//TAU / 16,
                 roll = 0
@@ -37,13 +39,14 @@ class LenseConfiguration(val size: Size, val iter: Double) extends Configuration
                 new Singularity(new Point(22, 5, 0), -0.037) ::
                 Nil,
 
-            singularityDepthLimit = 100
+            singularityDepthLimit = 300
         )
     }
 }
 
 class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
     lazy val TAU = 2 * Math.PI
+    val randomizer = new Random()
     override def getConfiguration = {
         new Configuration(
             imageSize = size,
@@ -91,7 +94,6 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
             ),
 
             antiAliasingMode = new Regular(5)
-
         )
     }
 }

@@ -1,21 +1,12 @@
 package as2388.scala.raytracer
 
+import as2388.scala.raytracer.shapes.Shape
+
 import scalafx.scene.image.PixelWriter
 import scalafx.scene.paint.Color
 
 class RayTracer(val configuration: Configuration) {
     val TAU = 2 * Math.PI
-
-//    val randomizer = new Random()
-//    val shapes: List[Shape] =
-//        new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8, 0.2, Color.rgb(238, 238, 238), Color.rgb(158, 158, 158)) ::
-//                ((0 to 50).toList map (x=> new Cuboid(
-//            center = new Point(randomizer.nextDouble() * 70 - 20, randomizer.nextDouble() * 50, randomizer.nextDouble() * 20),
-//            XScale = 1, YScale = 1, ZScale = 1,
-//            XRot = randomizer.nextDouble() * TAU, YRot = randomizer.nextDouble() * TAU, ZRot = randomizer.nextDouble() * TAU,
-//            diffusivity = 0.5, reflectivity = 0.5,
-//            color = Color.rgb(76, 175, 80)
-//        )))
 
        //    ----------- CIRCLE RING --------------------
 //        val shapes: List[Shape] = new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8, 0.2, Color.rgb(238, 238, 238), Color.rgb(158, 158, 158)) ::
