@@ -1,7 +1,7 @@
 package as2388.scala.raytracer.examples
 
 import as2388.scala.raytracer._
-import as2388.scala.raytracer.shapes.{CheckeredPlane, Cuboid, Sphere}
+import as2388.scala.raytracer.shapes.{FinitePlane, CheckeredPlane, Cuboid, Sphere}
 
 
 abstract class ConfigurationManager {
@@ -77,8 +77,9 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
 
             lights =
 //                    new PointLight(new Point(-10, 50, 80), 0.60) ::
-                    new VolumeLight(new Point(-10, 50, 80), 3.0, 0.60).getPointLights :::
-                    new VolumeLight(new Point(-20, -50, 30), 3.0, 0.30, ColorUtils.fromHex("EF9A9A")).getPointLights :::
+//                    new PointLight(new Point(-20, -50, 30), 0.30) ::
+                    new VolumeLight(new Point(-10, 50, 80), 9.0, 0.60).getPointLights :::
+                    new VolumeLight(new Point(-20, -50, 30), 9.0, 0.30, ColorUtils.fromHex("EF9A9A")).getPointLights :::
                     Nil,
 
             camera = new Camera(
@@ -105,7 +106,7 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
 
 
 
-//            focusMode = new FocusSome(100, TAU / 400)
+//            focusMode = new FocusSome(20, TAU / 200)
 
         )
     }

@@ -6,11 +6,10 @@ class VolumeLight (location: Point, val size: Double, intensity: Double,
                  color: Color = ColorUtils.fromHex("FFFFFF")) extends PointLight(location, intensity, color) {
     def getPointLights: List[PointLight] =
         (for (
-            x <- -size / 2 to size / 2 by size / 2;
-            y <- -size / 2 to size / 2 by size / 2;
-            z <- -size / 2 to size / 2 by size / 2
+            x <- -size / 2 to size / 2 by size / 3;
+            y <- -size / 2 to size / 2 by size / 3;
+            z <- -size / 2 to size / 2 by size / 3
         ) yield {
-            println(x,y,z)
-            new PointLight(location + new Point(x, y, z), intensity / 27.0, color)
+            new PointLight(location + new Point(x, y, z), intensity / 64.0, color)
         }).toList
 }

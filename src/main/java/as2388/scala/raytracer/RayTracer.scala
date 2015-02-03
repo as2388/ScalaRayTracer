@@ -113,11 +113,16 @@ class RayTracer(val configuration: Configuration) {
     }
 
     def focus(pixelPoint: PixelPoint, count: Int, angle: Double) = {
+        def fn(yawChange: Double, pitchChange: Double) = if (pixelPoint.x < 0.35 * size.width || pixelPoint.y > 0.65 * size.width ||
+                    pixelPoint.y < 0.35 * size.height || pixelPoint.y > 0.65 * size.height)
+                colorPixel(pixelPoint, yawChange, pitchChange)
+                else antiAliasingFunction(pixelPoint, yawChange, pitchChange)
+
         val sampledSubPixels = for {
             yawChange <- -angle to angle by angle * 2 / count
             pitchChange <- -angle to angle by angle * 2 / count
         } yield {
-            antiAliasingFunction(pixelPoint, yawChange, pitchChange)
+            fn(yawChange, pitchChange)
         }
 
         averageColors(sampledSubPixels.toList)
@@ -137,7 +142,7 @@ class RayTracer(val configuration: Configuration) {
 //    def adaptiveAntiAlias(pixelPoint: PixelPoint) = {
 //        if (pixelPoint.x < 0.35 * size.width || pixelPoint.y > 0.65 * size.width ||
 //            pixelPoint.y < 0.35 * size.height || pixelPoint.y > 0.65 * size.height) focus(pixelPoint)
-//        else antiAlias(pixelPoint)
+//        else antiAlias(pixelPoint, 0, 0)
 //    }
 
     /**
@@ -163,16 +168,19 @@ class RayTracer(val configuration: Configuration) {
     }
 
     def writeToImage(writer: BufferedImage) = {
-        var remaining = size.width
+        var remaining = size.width * size.height
+        val pixels = size.width * size.height
 
         (0 to size.width - 1).par foreach (x => {
             (0 to size.height - 1).par foreach (y => {
                 val color = focusFunction(new PixelPoint(x, y)).getSafeColor
                 writer.setRGB(x, y, new java.awt.Color((color.r * 255).toInt, (color.g * 255).toInt, (color.b * 255).toInt).getRGB)
+
+                remaining -= 1
+                if (remaining % 200 == 0)
+                    println((((pixels - remaining).toDouble / pixels.toDouble) * 10000).floor / 100 + "% done (" + remaining + " pixels remain)")
             })
-            remaining -= 1
-            if (remaining % 1 == 0)
-                println((((size.width - remaining).toDouble / size.width.toDouble) * 10000).floor / 100 + "% done (" + remaining + " columns remain)")
+
         })
     }
 
