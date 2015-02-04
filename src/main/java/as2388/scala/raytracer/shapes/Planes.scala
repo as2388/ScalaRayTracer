@@ -32,6 +32,16 @@ class FinitePlane(normal: Vector, distance: Double, diffusivity: Double, reflect
         extends Plane(normal, distance, diffusivity, reflectivity, color) with Magnitude {
     val TAU = 2 * Math.PI
 
+    def this(vertices: List[Point], diffusivity: Double, reflectivity: Double, color: Color,
+             translationOffset: Point) =
+        this(
+            (new Vector(vertices(2), vertices(1)) cross new Vector(vertices(1), vertices(0))) normalize(),
+           - (((new Vector(vertices(2), vertices(1)) cross new Vector(vertices(1), vertices(0))) normalize())
+            dot vertices.head.asVector()),
+            diffusivity, reflectivity, color, vertices, translationOffset
+        )
+
+
     override def closestIntersection(line: Line) : IntersectionData = {
         if ((line.vector dot normal) >= 0) null
         else {
@@ -39,7 +49,7 @@ class FinitePlane(normal: Vector, distance: Double, diffusivity: Double, reflect
             val closestIntersection = super.closestIntersection(testLine)
             if (closestIntersection == null) null
             else {
-                if (insidePlane(closestIntersection.intersectionPoint)) new IntersectionData(
+                if (insidePlane(closestIntersection.intersectionPoint, vertices, prevPositiveSign = false) /*|| insidePlane(closestIntersection.intersectionPoint, vertices, prevPositiveSign = true)*/) new IntersectionData(
                     closestIntersection.distance,
                     closestIntersection.intersectionPoint + translationOffset,
                     closestIntersection.normal,
@@ -50,18 +60,17 @@ class FinitePlane(normal: Vector, distance: Double, diffusivity: Double, reflect
         }
     }
 
-    private def insidePlane(point: Point): Boolean =
-        (angleSum(vertices, point) - TAU).abs < 0.0001
+    private def insidePlane(point: Point, vertices: List[Point], prevPositiveSign: Boolean) : Boolean = vertices match {
+        case Nil      => true
+        case v :: Nil => true
+        case v1 :: v2 :: vs => {
+            val lineToPoint = new Vector(point, v1)
+            val edge = new Vector(v1, v2)
 
-    private def angleSum(vertices: List[Point], testPoint: Point): Double = vertices match {
-        case Nil => 0
-        case v :: Nil => 0
-        case v1 :: v2 :: vs =>
-            val p1 = v1 - testPoint asVector()
-            val p2 = v2 - testPoint asVector()
-            val m1m2 = magnitude(p1) * magnitude(p2)
+            val positiveSign = ((lineToPoint cross edge) dot normal) > 0
 
-            if (m1m2 <= 0.00001) TAU
-            else Math.acos((p1 dot p2) / m1m2) + angleSum(v2 :: vs, testPoint)
+            if (positiveSign == prevPositiveSign) insidePlane(point, v2 :: vs, prevPositiveSign)
+            else false
+        }
     }
 }
