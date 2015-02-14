@@ -1,20 +1,24 @@
 package as2388.scala.raytracer.examples
 
 import as2388.scala.raytracer._
-import as2388.scala.raytracer.shapes.{FinitePlane, CheckeredPlane, Cuboid, Sphere}
+import as2388.scala.raytracer.shapes._
 
 
 abstract class ConfigurationManager {
     def getConfiguration: Configuration
 }
 
-class LenseConfiguration(val size: Size, val iter: Double) extends ConfigurationManager {
+/**
+ * Renders a red sphere with a singularity at its centre, and a magnified purple sphere behind it
+ * @param size  Image size
+ */
+class LenseConfiguration(val size: Size) extends ConfigurationManager {
     override def getConfiguration = {
         new Configuration(
             imageSize = size,
 
             shapes =
-                new Sphere(new Point(28, 5 + (iter / 10), 0), 2, 1.0, 0, new Color(255, 193, 7)) :: Nil,
+                new Sphere(new Point(28, 6, 0), 2, 1.0, 0, new Color(255, 193, 7)) :: Nil,
 
             lights =
                 new PointLight(new Point(-10, 50, 80), 0.30) ::
@@ -24,12 +28,12 @@ class LenseConfiguration(val size: Size, val iter: Double) extends Configuration
                 Nil,
 
             camera = new Camera(
-                screenCentre = new Point(22, 5, 0), //(22, ...
+                screenCentre = new Point(22, 5, 0),
                 distanceFromScreen = 70,
                 screenPixelDimensions = size,
                 pointsPerPixel = .35,
                 yaw = 0,
-                pitch = 0,//TAU / 16,
+                pitch = 0,
                 roll = 0
             ),
 
@@ -42,13 +46,230 @@ class LenseConfiguration(val size: Size, val iter: Double) extends Configuration
     }
 }
 
-class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
+/**
+ * Renders the image on this project's github home page, a checkerboard with spheres and cuboids on it
+ * @param size
+ * @param iter
+ */
+class CheckerboardConfiguration(val size: Size, val iter: Double) extends ConfigurationManager {
     lazy val TAU = 2 * Math.PI
+
+    val XRot = 0
+    val YRot = 0
+    val ZRot = iter
+    private def rotate(vertices: List[Point]) = vertices map (_ rotateX XRot rotateY YRot rotateZ ZRot)
+
     override def getConfiguration = {
+        val gr = (1 + Math.sqrt(5)) / 2
+
+        val a = new Point(gr, 0, 1 / gr)
+        val b = new Point(-gr, 0, 1 / gr)
+        val c = new Point(-gr, 0, -1 / gr)
+        val d = new Point(gr, 0, -1 / gr)
+
+        val e = new Point(1 / gr, gr, 0)
+        val f = new Point(1 / -gr, gr, 0)
+        val g = new Point(-1 / -gr, gr, 0)
+        val h = new Point(-1 / gr, gr, 0)
+
+        val i = new Point(0, 1 / gr, gr)
+        val j = new Point(0, 1 / gr, -gr)
+        val k = new Point(0, -1 / gr, -gr)
+        val l = new Point(0, -1 / gr, gr)
+
+        val m = new Point(1, 1, 1)
+        val n = new Point(1, -1, 1)
+        val o = new Point(-1, -1, 1)
+        val p = new Point(-1, 1, 1)
+        val q = new Point(-1, 1, -1)
+        val r = new Point(1, 1, -1)
+        val s = new Point(1, -1, -1)
+        val t = new Point(-1, -1, -1)
+
+        val planes = (new FinitePlane(
+            new Point(-1, 0, 0) ::
+                    new Point(0, -1, 0) ::
+                    new Point(0, 0, 1) ::
+                    new Point(-1, 0, 0) ::
+                    Nil,
+            0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+        ) ::
+                new FinitePlane(
+                    new Point(0, -1, 0) ::
+                            new Point(1, 0, 0) ::
+                            new Point(0, 0, 1) ::
+                            new Point(0, -1, 0) ::
+                            Nil,
+                    0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+                ) ::
+                new FinitePlane(
+                    new Point(1, 0, 0) ::
+                            new Point(0, 1, 0) ::
+                            new Point(0, 0, 1) ::
+                            new Point(1, 0, 0) ::
+                            Nil,
+                    0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+                ) ::
+                new FinitePlane(
+                    new Point(0, 0, 1) ::
+                            new Point(0, 1, 0) ::
+                            new Point(-1, 0, 0) ::
+                            new Point(0, 0, 1) ::
+                            Nil,
+                    0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+                ) ::
+
+                new FinitePlane(
+                    new Point(-1, 0, 0) ::
+                            new Point(0, 0, -1) ::
+                            new Point(0, -1, 0) ::
+                            new Point(-1, 0, 0) ::
+                            Nil,
+                    0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+                ) ::
+                new FinitePlane(
+                    new Point(0, -1, 0) ::
+                            new Point(0, 0, -1) ::
+                            new Point(1, 0, 0) ::
+                            new Point(0, -1, 0) ::
+                            Nil,
+                    0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+                ) ::
+
+                new FinitePlane(
+                    new Point(0, 1, 0) ::
+                            new Point(1, 0, 0) ::
+                            new Point(0, 0, -1) ::
+                            new Point(0, 1, 0) ::
+                            Nil,
+                    0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+                ) ::
+                new FinitePlane(
+                    new Point(-1, 0, 0) ::
+                            new Point(0, 1, 0) ::
+                            new Point(0, 0, -1) ::
+                            new Point(-1, 0, 0) ::
+                            Nil,
+                    0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+                ) :: Nil) map (plane => new FinitePlane(plane.normal rotateX XRot rotateY YRot rotateZ ZRot, plane.distance,
+            plane.diffusivity, plane.reflectivity, plane.color,
+            rotate(plane.vertices), new Point(22,5,0)))
+
+
         new Configuration(
             imageSize = size,
+//                    new FinitePlane(
+//                        new Point(-1, 1, -1) ::
+//                        new Point(-1 / gr, gr, 0) ::
+//                        new Point(-1, 1, 1) ::
+//                        new Point(-gr, 0, 1 / gr) ::
+//                        new Point(-gr, 0, -1 / gr) ::
+//                        new Point(-1, 1, -1) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
+//                    new FinitePlane(
+//                        new Point(-gr, 0, -1 / gr) ::
+//                        new Point(-gr, 0, 1 / gr) ::
+//                        new Point(-1 , -1 , 1) ::
+//                        new Point(-1 / gr, -gr, 0) ::
+//                        new Point(-1, -1, -1) ::
+//                        new Point(-gr, 0, -1 / gr) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
+//                    new FinitePlane(
+//                        new Point(-gr, 0, -1 / gr) ::
+//                        new Point(-1, -1, -1) ::
+//                        new Point(0, -1 / gr, -gr) ::
+//                        new Point(0, 1 / gr, -gr) ::
+//                        new Point(-1, 1, -1) ::
+//                        new Point(-gr, 0, -1 / gr) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
+//                    new FinitePlane(
+//                        new Point(-gr, 0, 1 / gr) ::
+//                        new Point(-1, 1, 1) ::
+//                        new Point(0, 1 / gr, gr) ::
+//                        new Point(0, -1 / gr, gr) ::
+//                        new Point(-1, -1, 1) ::
+//                        new Point(-gr, 0, 1 / gr) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
+//                    new FinitePlane(
+//                        new Point(-1, 1, 1) ::
+//                        new Point(- 1/ gr, gr, 0) ::
+//                        new Point(1 / gr, gr, 0) ::
+//                        new Point(1, 1, 1) ::
+//                        new Point(0, 1/ gr, gr) ::
+//                        new Point(-1, 1, 1) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
+//                    new FinitePlane(
+//                        new Point(-1, 1, 1) ::
+//                        new Point(0, -1 / gr, gr) ::
+//                        new Point(1, -1, 1) ::
+//                        new Point(1 / gr, -gr, 0) ::
+//                        new Point(-1 / gr, -gr, 0) ::
+//                        new Point(-1, 1, 1) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
+//                    new FinitePlane(
+//                        new Point(gr, 0, -1 / gr) ::
+//                        new Point(1, 1, -1) ::
+//                        new Point(0, 1 / gr, - gr) ::
+//                        new Point(0, -1 / gr, -gr) ::
+//                        new Point(1, -1, -1) ::
+//                        new Point(gr, 0, -1 / gr) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
+//                    new FinitePlane(
+//                        new Point(1, -1, 1) ::
+//                        new Point(gr, 0, 1 / gr) ::
+//                        new Point(gr, 0, -1 / gr) ::
+//                        new Point(1 / gr, -gr, 0) ::
+//                        new Point(1, -1, 1) ::
+//                        new Point(1, -1, 1) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
+//                    new FinitePlane(
+//                        new Point(1, -1, 1) ::
+//                        new Point(gr, 0, 1 / gr) ::
+//                        new Point(gr, 0, -1 / gr) ::
+//                        new Point(1 / gr, -gr, 0) ::
+//                        new Point(1, -1, 1) ::
+//                        new Point(1, -1, 1) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
 
-            shapes =
+//                    new FinitePlane(
+//                        new Point(0, -1 / gr, gr) ::
+//                        new Point(0, 1 / gr, gr) ::
+//                        new Point(1, 1, 1) ::
+//                        new Point(gr, 0, 1/gr) ::
+//                        new Point(1, -1, 1) ::
+//                        new Point(0, -1 / gr, gr) ::
+//                        Nil,
+//                        0.90, 0.10, ColorUtils.fromHex("FF5722"), new Point(22, 5, 0)
+//                    ) ::
+
+//                    new FinitePlane(
+//                        new Point(-0.5, 0.5, ) ::
+//                        new Point(-1 / gr, gr, 0) ::
+//                        new Point(-1, 1, 1) ::
+//                        new Point(-gr, 0, 1 / gr) ::
+//                        Nil,
+//                        0.8, 0.2, new Color(1, 1, 1), new Point(0, 0, 0)
+//                    ) ::
+
+        shapes =
                     new Sphere(new Point(22, 5, 0), 3, 0.9, 0.1, ColorUtils.fromHex("E91E63")) :: //Pink 500
                     new Sphere(new Point(21, 9, -2), 1, 0.5, 0.5, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
                     new Sphere(new Point(36, -8, -2), 1, 0.5, 0.5, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
@@ -76,38 +297,21 @@ class CheckerboardConfiguration(val size: Size) extends ConfigurationManager {
                     Nil,
 
             lights =
-//                    new PointLight(new Point(-10, 50, 80), 0.60) ::
-//                    new PointLight(new Point(-20, -50, 30), 0.30) ::
-                    new VolumeLight(new Point(-10, 50, 80), 9.0, 0.60).getPointLights :::
-                    new VolumeLight(new Point(-20, -50, 30), 9.0, 0.30, ColorUtils.fromHex("EF9A9A")).getPointLights :::
+                    new PointLight(new Point(-10, 50, 80), 0.60) ::
+                    new PointLight(new Point(-20, -50, 30), 0.30, ColorUtils.fromHex("673AB7")) ::
+//                    new VolumeLight(new Point(-10, 50, 80), 9.0, 0.60, ColorUtils.fromHex("FBE9E7")).getPointLights :::
+//                    new VolumeLight(new Point(-20, -50, 30), 9.0, 0.30, ColorUtils.fromHex("673AB7")).getPointLights :::
                     Nil,
 
             camera = new Camera(
                 screenCentre = new Point(22, 5, 0), //(22, ...
-                distanceFromScreen = 70,
+                distanceFromScreen = 70, //40
                 screenPixelDimensions = size,
                 pointsPerPixel = 0.015,
                 yaw = 0,
                 pitch = TAU / 16,
                 roll = 0
-            ),
-
-            antiAliasingMode = new AntiAliasingRegular(4)
-//
-//            singularities =
-//                    new Singularity(new Point(22, 5, 0), -0.005) ::
-//                    Nil,
-//
-//            singularityDepthLimit = 200
-
-//        enableReflections = false,
-//        enableDiffuse = false,
-//        ambientIntensity = 1.0
-
-
-
-//            focusMode = new FocusSome(20, TAU / 200)
-
+            )
         )
     }
 }

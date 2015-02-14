@@ -17,20 +17,12 @@ class Configuration(
        val focusMode: FocusMode = new FocusNone
 )
 
-/*
-    Multithread
-    Progress interval
-    Adaptive AntiAlias
-
-    TODO:
-    Soft shadows
- */
-
 abstract class AntiAliasingMode
 /** No anti-aliasing */
 case class AntiAliasingNone() extends AntiAliasingMode
 /** Anti-alias from samples taken at regular intervals, with count samples taken in each direction x and y */
 case class AntiAliasingRegular(count: Int) extends AntiAliasingMode
+case class AntiAliasingRegularCenter(count: Int, XMin: Double, YMin: Double) extends AntiAliasingMode
 
 abstract class FocusMode
 /** Do not perform depth-of-field */

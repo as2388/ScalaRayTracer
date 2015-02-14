@@ -49,21 +49,21 @@ class FinitePlane(normal: Vector, distance: Double, diffusivity: Double, reflect
             val closestIntersection = super.closestIntersection(testLine)
             if (closestIntersection == null) null
             else {
-                if (insidePlane(closestIntersection.intersectionPoint, vertices, prevPositiveSign = false) /*|| insidePlane(closestIntersection.intersectionPoint, vertices, prevPositiveSign = true)*/) new IntersectionData(
-                    closestIntersection.distance,
-                    closestIntersection.intersectionPoint + translationOffset,
-                    closestIntersection.normal,
-                    closestIntersection.shape
-                )
+                if (insidePlane(closestIntersection.intersectionPoint, vertices, prevPositiveSign = false) ||
+                        insidePlane(closestIntersection.intersectionPoint, vertices, prevPositiveSign = true))
+                    new IntersectionData(
+                        closestIntersection.distance,
+                        closestIntersection.intersectionPoint + translationOffset,
+                        closestIntersection.normal,
+                        closestIntersection.shape
+                    )
                 else null
             }
         }
     }
 
     private def insidePlane(point: Point, vertices: List[Point], prevPositiveSign: Boolean) : Boolean = vertices match {
-        case Nil      => true
-        case v :: Nil => true
-        case v1 :: v2 :: vs => {
+        case v1 :: v2 :: vs =>
             val lineToPoint = new Vector(point, v1)
             val edge = new Vector(v1, v2)
 
@@ -71,6 +71,6 @@ class FinitePlane(normal: Vector, distance: Double, diffusivity: Double, reflect
 
             if (positiveSign == prevPositiveSign) insidePlane(point, v2 :: vs, prevPositiveSign)
             else false
-        }
+        case v :: Nil => true
     }
 }

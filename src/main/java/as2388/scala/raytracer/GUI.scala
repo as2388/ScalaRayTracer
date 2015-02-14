@@ -12,7 +12,7 @@ import scalafx.embed.swing.SwingFXUtils
 import scalafx.scene.Scene
 import scalafx.scene.image.{ImageView, WritableImage}
 
-object WTF {
+object CommandLine {
     def main(args: Array[String]) = {
         println("Starting RayTracer...")
 
@@ -47,36 +47,23 @@ object GUI extends JFXApp {
     val mimage = new WritableImage(size.width, size.height)
     val pixelWriter = mimage.pixelWrit
 
+    println("Initialising RayTracer...")
 
-    val tracer = new RayTracer(new CheckerboardConfiguration(size).getConfiguration)
+    val TAU = 2 * Math.PI
+
+    val tracer = new RayTracer(new CheckerboardConfiguration(size, 0).getConfiguration)
+
+    val time = System.currentTimeMillis()
     tracer writeToImage pixelWriter
+    val millis = System.currentTimeMillis() - time
+    println("Total time: " +
+            TimeUnit.MILLISECONDS.toHours(millis) + ":" +
+            TimeUnit.MILLISECONDS.toMinutes(millis) % 60 + ":" +
+            TimeUnit.MILLISECONDS.toSeconds(millis) % 60
+    )
 
-    val file = new File("test.png")
+    val file = new File("check2" + ".png")
     ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
-
-
-//    for (iter <- 90 to 270 if iter  == 158) {
-//        val time = System.currentTimeMillis()
-//        println("Intialising RayTracer...")
-//        val tracer = new RayTracer(new LenseConfiguration(size, iter - 180).getConfiguration)
-//
-//        println("Starting trace for image " + iter)
-//
-//        tracer writeToImage pixelWriter
-//
-//        println("Tracing complete")
-//
-//        println("Writing to file " + iter + ".png...")
-//        val file = new File(159 + ".png")
-//        ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
-//
-//        val millis = System.currentTimeMillis() - time
-//        println("Total time: " +
-//                TimeUnit.MILLISECONDS.toHours(millis) + ":" +
-//                TimeUnit.MILLISECONDS.toMinutes(millis) % 60 + ":" +
-//                TimeUnit.MILLISECONDS.toSeconds(millis) % 60
-//        )
-//    }
 
     stage = new JFXApp.PrimaryStage {
         title.value = "Scala Ray Tracer"
