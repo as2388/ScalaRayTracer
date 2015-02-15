@@ -22,7 +22,7 @@ object CommandLine {
 
         val bi: BufferedImage = new BufferedImage(3200, 1800, 1)
 
-        val tracer = new RayTracer(new CheckerboardConfiguration(size).getConfiguration)
+        val tracer = new RayTracer(new CheckerboardConfiguration(size, 0).getConfiguration)
         tracer writeToImage bi
 
         val file = new File("test.png")
@@ -51,20 +51,22 @@ object GUI extends JFXApp {
 
     val TAU = 2 * Math.PI
 
-    val tracer = new RayTracer(new CheckerboardConfiguration(size, 0).getConfiguration)
+    for (iter <- 1 to 8) {
+        val tracer = new RayTracer(new CheckerboardConfiguration(size, iter).getConfiguration)
 
-    val time = System.currentTimeMillis()
-    tracer writeToImage pixelWriter
-    val millis = System.currentTimeMillis() - time
-    println("Total time: " +
-            TimeUnit.MILLISECONDS.toHours(millis) + ":" +
-            TimeUnit.MILLISECONDS.toMinutes(millis) % 60 + ":" +
-            TimeUnit.MILLISECONDS.toSeconds(millis) % 60
-    )
+        val time = System.currentTimeMillis()
+        tracer writeToImage pixelWriter
+        val millis = System.currentTimeMillis() - time
+        println("Total time: " +
+                TimeUnit.MILLISECONDS.toHours(millis) + ":" +
+                TimeUnit.MILLISECONDS.toMinutes(millis) % 60 + ":" +
+                TimeUnit.MILLISECONDS.toSeconds(millis) % 60
+        )
 
-    val file = new File("check2" + ".png")
-    ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
+        val file = new File(iter + ".png")
+        ImageIO.write(SwingFXUtils fromFXImage(mimage, null), "png", file)
 
+    }
     stage = new JFXApp.PrimaryStage {
         title.value = "Scala Ray Tracer"
         width = size.width

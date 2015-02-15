@@ -297,11 +297,14 @@ class CheckerboardConfiguration(val size: Size, val iter: Double) extends Config
                     Nil,
 
             lights =
-                    new PointLight(new Point(-10, 50, 80), 0.60) ::
-                    new PointLight(new Point(-20, -50, 30), 0.30, ColorUtils.fromHex("673AB7")) ::
-//                    new VolumeLight(new Point(-10, 50, 80), 9.0, 0.60, ColorUtils.fromHex("FBE9E7")).getPointLights :::
-//                    new VolumeLight(new Point(-20, -50, 30), 9.0, 0.30, ColorUtils.fromHex("673AB7")).getPointLights :::
-                    Nil,
+                    if (iter <= 6)
+                        new PointLight(new Point(-10, 50, 80), 0.60) ::
+                        new PointLight(new Point(-20, -50, 30), 0.30, ColorUtils.fromHex(if (iter > 4) "FFAB91" else "FFFFFF")) ::
+                        Nil
+                    else
+                        new VolumeLight(new Point(-10, 50, 80), 9.0, 0.60).getPointLights :::
+                        new VolumeLight(new Point(-20, -50, 30), 9.0, 0.30, ColorUtils.fromHex("FFAB91")).getPointLights :::
+                        Nil,
 
             camera = new Camera(
                 screenCentre = new Point(22, 5, 0), //(22, ...
@@ -311,7 +314,16 @@ class CheckerboardConfiguration(val size: Size, val iter: Double) extends Config
                 yaw = 0,
                 pitch = TAU / 16,
                 roll = 0
-            )
+            ),
+
+            enableShadows = iter > 2,
+            enableDiffuse = iter > 1,
+            enableReflections = iter > 3,
+            ambientIntensity = if (iter > 1) 0.1 else 0.6,
+
+            antiAliasingMode = if (iter > 5) new AntiAliasingRegular(3) else new AntiAliasingNone,
+
+            focusMode = if (iter > 7) new FocusSome(10, Math.PI / 200) else new FocusNone
         )
     }
 }

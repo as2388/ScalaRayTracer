@@ -163,8 +163,8 @@ class RayTracer(val configuration: Configuration) {
             val randomYaw = random * angle * 2 / count - angle / count
             val randomPitch = random * angle * 2 / count - angle / count
 
-            if (pixelPoint.x < 0.35 * size.width || pixelPoint.y > 0.65 * size.width ||
-                    pixelPoint.y < 0.35 * size.height || pixelPoint.y > 0.65 * size.height)
+            if (pixelPoint.x < 0.38 * size.width || pixelPoint.y > 0.62 * size.width ||
+                    pixelPoint.y < 0.38 * size.height || pixelPoint.y > 0.62 * size.height)
                 colorPixel(pixelPoint, yawChange + randomYaw, pitchChange + randomPitch)
             else antiAliasingFunction(pixelPoint, yawChange + randomYaw, pitchChange + randomPitch)
         }
@@ -185,7 +185,11 @@ class RayTracer(val configuration: Configuration) {
             x <- -0.50 to 0.50 by 1.0 / count
             y <- -0.50 to 0.50 by 1.0 / count
         } yield {
-            colorPixel(new PixelPoint(pixelPoint.x + x.toDouble, pixelPoint.y + y.toDouble), yawChange, pitchChange)
+            // Cheaper to take more samples than to Jitter
+            val xRandom = random * 1.0 / count - 0.5 / count
+            val yRandom = random * 1.0 / count - 0.5 / count
+
+            colorPixel(new PixelPoint(pixelPoint.x + x + xRandom, pixelPoint.y + y + yRandom), yawChange, pitchChange)
         }
 
         averageColors(sampledSubPixels.toList)
