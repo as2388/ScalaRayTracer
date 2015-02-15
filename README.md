@@ -13,6 +13,7 @@ Current features:
    - Ambient illumination
    - Shadows
    - Coloured point light sources
+   - Volume light sources, which generate soft shadows
    - Reflections
  - Anti-aliasing
  - Depth of field (with anti-alias limited to middle 30%)
