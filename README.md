@@ -1,7 +1,9 @@
 # ScalaRayTracer
 A ray tracer built completely from the ground up in Scala.
 
-<img src="https://dl.dropboxusercontent.com/u/60694349/GitHub/ScalaRayTracer/trace0.png" />
+<img src="https://dl.dropboxusercontent.com/u/60694349/GitHub/ScalaRayTracer/Building%20an%20image/8.png" />
+See the <a href="https://github.com/as2388/ScalaRayTracer/wiki/Building-an-Image">Building the Image<a/> page for more on this image
+
 
 Current features:
  - Shapes:
