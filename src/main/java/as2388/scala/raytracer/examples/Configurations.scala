@@ -297,7 +297,7 @@ class CheckerboardConfiguration(val size: Size, val iter: Double) extends Config
                     Nil,
 
             lights =
-                    if (iter <= 6)
+                    if (iter <= 6 || true)
                         new PointLight(new Point(-10, 50, 80), 0.60) ::
                         new PointLight(new Point(-20, -50, 30), 0.30, ColorUtils.fromHex(if (iter > 4) "FFAB91" else "FFFFFF")) ::
                         Nil
@@ -321,9 +321,9 @@ class CheckerboardConfiguration(val size: Size, val iter: Double) extends Config
             enableReflections = iter > 3,
             ambientIntensity = if (iter > 1) 0.1 else 0.6,
 
-            antiAliasingMode = if (iter > 5) new AntiAliasingRegular(3) else new AntiAliasingNone,
+            antiAliasingMode = if (iter > 5 && false) new AntiAliasingRegular(3) else new AntiAliasingNone,
 
-            focusMode = if (iter > 7) new FocusSome(10, Math.PI / 200) else new FocusNone
+            focusMode = if (iter > 7) new FocusSome(10, Math.PI / 4) else new FocusNone
         )
     }
 }

@@ -226,19 +226,26 @@ class RayTracer(val configuration: Configuration) {
      * Everytime a column is completed, prints the number of remaining columns to the console
      * @param writer BufferedImage to write output image to.
      */
-    def writeToImage(writer: BufferedImage) = {
-        var remaining = size.width
+    def writeToImage(writer: BufferedImage, startX: Int, startY: Int, width: Int, height: Int) = {
+//        var remaining = size.width
 
-        (0 to size.width - 1).par foreach (x => {
-            (0 to size.height - 1).par foreach (y => {
+        (startX to startX + width - 1).par foreach (x => {
+            (startY to startY + height - 1).par foreach (y => {
                 val color = focusFunction(new PixelPoint(x, y)).getSafeColor
                 writer.setRGB(x, y, new java.awt.Color((color.r * 255).toInt, (color.g * 255).toInt, (color.b * 255).toInt).getRGB)
             })
-            remaining -= 1
-            if (remaining % 1 == 0)
-                println((((size.width - remaining).toDouble / size.width.toDouble) * 10000).floor / 100 +
-                        "% done (" + remaining + " columns remain)")
         })
+
+//        (0 to size.width - 1).par foreach (x => {
+//            (0 to size.height - 1).par foreach (y => {
+//                val color = focusFunction(new PixelPoint(x, y)).getSafeColor
+//                writer.setRGB(x, y, new java.awt.Color((color.r * 255).toInt, (color.g * 255).toInt, (color.b * 255).toInt).getRGB)
+//            })
+//            remaining -= 1
+//            if (remaining % 1 == 0)
+//                println((((size.width - remaining).toDouble / size.width.toDouble) * 10000).floor / 100 +
+//                        "% done (" + remaining + " columns remain)")
+//        })
     }
     /**
      * Performs the RayTrace operation, writing results to a ScalaFX PixelWriter.
