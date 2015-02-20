@@ -7,6 +7,8 @@ class Color(val r: Double, val g: Double, val b: Double) {
 
     def +(c: Color) = new Color(r + c.r, g + c.g, b + c.b)
 
+    def -(c: Color) = new Color(r - c.r, g - c.g, b - c.b)
+
     def toScalaFXColor =
         scalafx.scene.paint.Color.color(if (r > 1) 1.0 else r, if (g > 1) 1.0 else g, if (b > 1) 1.0 else b)
 

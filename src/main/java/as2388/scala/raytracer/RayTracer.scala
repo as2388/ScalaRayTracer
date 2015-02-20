@@ -181,18 +181,61 @@ class RayTracer(val configuration: Configuration) {
      * @return            Anti-aliased colour of a pixel on the output image.
      */
     private def antiAlias(pixelPoint: PixelPoint, count: Int, yawChange: Double, pitchChange: Double) = {
-        val sampledSubPixels = for {
-            x <- -0.50 to 0.50 by 1.0 / count
-            y <- -0.50 to 0.50 by 1.0 / count
+//                val sampledSubPixels = for {
+//                    x <- -0.50 to 0.50 by 1.0 / count
+//                    y <- -0.50 to 0.50 by 1.0 / count
+//                } yield {
+//                    val xRandom = random * 1.0 / count - 0.5 / count
+//                    val yRandom = random * 1.0 / count - 0.5 / count
+//
+//                    colorPixel(new PixelPoint(pixelPoint.x + x + xRandom, pixelPoint.y + y + yRandom), yawChange, pitchChange)
+//                }
+//
+//                averageColors(sampledSubPixels.toList)
+
+        val sampledSubPixels = (for {
+            x <- -0.50 to 0.50 by 1.0
+            y <- -0.50 to 0.50 by 1.0
         } yield {
-            // Cheaper to take more samples than to Jitter
             val xRandom = random * 1.0 / count - 0.5 / count
             val yRandom = random * 1.0 / count - 0.5 / count
 
             colorPixel(new PixelPoint(pixelPoint.x + x + xRandom, pixelPoint.y + y + yRandom), yawChange, pitchChange)
+        }).toList
+
+        if (variance(sampledSubPixels) > 12e-8) {
+             averageColors(sampledSubPixels :::
+                (for {
+                    x <- -0.50 to 0.50 by 1.0 / count
+                    y <- -0.50 to 0.50 by 1.0 / count
+                    if (x, y) != (-0.50, 0.50) && (x, y) != (0.50, 0.50) && (x, y) != (-0.50, -0.50) && (x, y) != (0.50, -0.50)
+                } yield {
+                    val xRandom = random * 1.0 / count - 0.5 / count
+                    val yRandom = random * 1.0 / count - 0.5 / count
+
+                    colorPixel(new PixelPoint(pixelPoint.x + x + xRandom, pixelPoint.y + y + yRandom), yawChange, pitchChange)
+                }).toList
+            )
+        } else
+            averageColors(sampledSubPixels.toList)
+
+    }
+
+    def variance(items: List[Color]): Double = {
+        def mean(item: List[Color]): Color = {
+            item.foldLeft(new Color(0, 0, 0))((a: Color, b: Color) => a + b) * (1 / item.size.toDouble)
         }
 
-        averageColors(sampledSubPixels.toList)
+        val itemMean: Color = mean(items)
+        val count = items.size
+        val sumOfSquares: Color = items.foldLeft(new Color(0, 0, 0))((total, item) => {
+            val square: Color = (item - itemMean) * (item - itemMean)
+            total + square
+        })
+
+        val v = sumOfSquares * (1 / count.toDouble)
+//        println(v.r + v.g + v.b)
+        v.r + v.g + v.b
     }
 
 

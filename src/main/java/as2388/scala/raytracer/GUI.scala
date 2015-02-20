@@ -26,8 +26,8 @@ object CommandLine {
 
         val bi: BufferedImage = new BufferedImage(3200, 1800, 1)
 
-        val tracer = new RayTracer(new CheckerboardConfiguration(size, 0).getConfiguration)
-        tracer writeToImage (bi, 0, 0, 3200, 1800)
+//        val tracer = new RayTracer(new CheckerboardConfiguration(size, 0, 0).getConfiguration)
+//        tracer writeToImage (bi, 0, 0, 3200, 1800)
 
         val file = new File("test.png")
 
@@ -47,12 +47,12 @@ object CommandLine {
 }
 
 object GUI extends SimpleSwingApplication {
-    val time = System.currentTimeMillis()
+    var time = System.currentTimeMillis()
     println("Ray Tracing...")
 
     val size = new Size(3200, 1800)
-    val sizeX = 80
-    val sizeY = 40
+    val sizeX = 400
+    val sizeY = 450
 
     val image: BufferedImage = new BufferedImage(3200, 1800, 1)
     val total: Double = size.width / sizeX * size.height / sizeY
@@ -68,29 +68,42 @@ object GUI extends SimpleSwingApplication {
         }
     }
 
-    for (iter <- 8 to 8) yield {
-        val tracer = new RayTracer(new CheckerboardConfiguration(size, iter).getConfiguration)
-        for (x <- 0 to size.width / sizeX - 1; y <- 0 to size.height / sizeY - 1) yield {
-            val b = Future {
-                val mImage = new BufferedImage(3200, 1800, 1)
-                tracer writeToImage(mImage, x * sizeX, y * sizeY, sizeX, sizeY)
-                (mImage, x * sizeX, y * sizeY)
-            }
+    val TAU = 2 * Math.PI
+    val frameStep = 0
 
-            b onSuccess {
-                case result => Swing.onEDT {
-                    val g = image.getGraphics
-                    g.drawImage(result._1,
-                        result._2, result._3, result._2 + sizeX, result._3 + sizeY,
-                        result._2, result._3, result._2 + sizeX, result._3 + sizeY,
-                        null)
-                    top.repaint()
+    def run(cameraRot: Double, frame: Int): Unit = {
+        timer.restart()
+        for (iter <- 4 to 4) yield {
+            val tracer = new RayTracer(new CheckerboardConfiguration(size, iter, frame).getConfiguration)
+            for (x <- 0 to size.width / sizeX - 1; y <- 0 to size.height / sizeY - 1) yield {
+                val b = Future {
+                    val mImage = new BufferedImage(3200, 1800, 1)
+                    tracer writeToImage(mImage, x * sizeX, y * sizeY, sizeX, sizeY)
+                    (mImage, x * sizeX, y * sizeY)
+                }
 
-                    remaining = remaining - 1
-                    if (remaining == 0) {
-                        println("Total time: " + formattedElapsedTime)
-                        timer.stop()
-                        println("Done")
+                b onSuccess {
+                    case result => Swing.onEDT {
+                        val g = image.getGraphics
+                        g.drawImage(result._1,
+                            result._2, result._3, result._2 + sizeX, result._3 + sizeY,
+                            result._2, result._3, result._2 + sizeX, result._3 + sizeY,
+                            null)
+                        top.repaint()
+
+                        this.synchronized {
+                            remaining = remaining - 1
+                        }
+
+                        if (remaining == 0) {
+//                            remaining = total
+                            println("Total time: " + formattedElapsedTime)
+                            val file = new File("sw" + frame + ".png")
+                            ImageIO.write(image, "png", file)
+                            time = System.currentTimeMillis()
+//                            if (cameraRot < TAU)
+//                                run(cameraRot + TAU / 400 * frameStep, frame + frameStep)
+                        }
                     }
                 }
             }
@@ -104,9 +117,13 @@ object GUI extends SimpleSwingApplication {
             TimeUnit.MILLISECONDS.toSeconds(millis) % 60
     }
 
-    def taskPerformer = new ActionListener {
+    def taskPerformer: ActionListener = new ActionListener {
         override def actionPerformed(actionEvent: event.ActionEvent): Unit = {
-            val millis = ((System.currentTimeMillis() - time) / ((total - remaining) / total)).toLong
+            if (remaining == 0) {
+                timer.stop()
+            }
+
+            val millis = ((System.currentTimeMillis() - time) / ((total - remaining) / total)).toLong - (System.currentTimeMillis() - time)
             val predictedRemaining = TimeUnit.MILLISECONDS.toHours(millis) + ":" +
                     TimeUnit.MILLISECONDS.toMinutes(millis) % 60 + ":" +
                     TimeUnit.MILLISECONDS.toSeconds(millis) % 60
@@ -117,5 +134,10 @@ object GUI extends SimpleSwingApplication {
     }
 
     val timer = new Timer(1000, taskPerformer)
-    timer.start()
+
+//    override def main(args: Array[String]) {
+        timer.start()
+        val frame = 120
+        run(frame * TAU / 400, frame)
+//    }
 }

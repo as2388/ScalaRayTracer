@@ -9,20 +9,9 @@ class Camera(val screenCentre: Point, val distanceFromScreen: Double, val screen
         val yaw = this.yaw + yawChange
         val pitch = this.pitch + pitchChange
 
-        val viewLocation: Point = screenCentre - new Point(0, 0, 0)
+        val viewDirection = (new Vector(1, 0, 0)  rotateY pitch) rotateZ yaw
 
-        //translate screen centre to (0, 0, 0)
-        val centeredViewLocation = viewLocation translate (screenCentre * -1)
-
-        //Modify viewing location based on yaw and pitch
-        val centeredRotatedViewLocation = (centeredViewLocation rotateZ yaw) rotateY pitch
-
-        //Translate viewing location back screenCentre
-        val rotatedViewLocation = centeredRotatedViewLocation translate screenCentre
-
-        val viewDirection = (new Vector(1, 0, 0) rotateZ yaw) rotateY pitch
-
-        val viewUp = ((new Vector(0, 0, 1) rotateY pitch) rotateX roll) normalize()
+        val viewUp = (((new Vector(0, 0, 1) rotateY pitch) rotateX roll) rotateZ yaw) normalize()
         val viewRight = viewDirection cross viewUp
 
         val screenPixelPoint = new PixelPoint(point.x - halfWidth, point.y - halfHeight) //point on screen in pixels

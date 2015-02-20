@@ -51,7 +51,7 @@ class LenseConfiguration(val size: Size) extends ConfigurationManager {
  * @param size
  * @param iter
  */
-class CheckerboardConfiguration(val size: Size, val iter: Double) extends ConfigurationManager {
+class CheckerboardConfiguration(val size: Size, val iter: Double, val frame: Double) extends ConfigurationManager {
     lazy val TAU = 2 * Math.PI
 
     val XRot = 0
@@ -313,7 +313,7 @@ class CheckerboardConfiguration(val size: Size, val iter: Double) extends Config
                 pointsPerPixel = 0.015,
                 yaw = 0,
                 pitch = TAU / 16,
-                roll = 0
+                roll = 0//TAU / 400 * frame
             ),
 
             enableShadows = iter > 2,
@@ -321,9 +321,9 @@ class CheckerboardConfiguration(val size: Size, val iter: Double) extends Config
             enableReflections = iter > 3,
             ambientIntensity = if (iter > 1) 0.1 else 0.6,
 
-            antiAliasingMode = if (iter > 5 && false) new AntiAliasingRegular(3) else new AntiAliasingNone,
+            antiAliasingMode = if (iter > 5) new AntiAliasingRegular(3) else new AntiAliasingNone,
 
-            focusMode = if (iter > 7) new FocusSome(10, Math.PI / 4) else new FocusNone
+            focusMode = if (iter > 7) new FocusSome(4, Math.PI / 800) else new FocusNone
         )
     }
 }
