@@ -28,7 +28,7 @@ case class AntiAliasingNone() extends AntiAliasingMode
 case class AntiAliasingRegular(count: Int) extends AntiAliasingMode
 /** Anti-aliasing mode designed for use with focus: takes one random sample, so anti-aliasing relies on the focus
   * routine taking many samples in order to work */
-case class AntiAliasingFocus(count: Int, XMin: Float, YMin: Float) extends AntiAliasingMode
+case class AntiAliasingFocus() extends AntiAliasingMode
 
 abstract class FocusMode
 /** Do not perform depth-of-field */

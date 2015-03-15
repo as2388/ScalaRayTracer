@@ -69,7 +69,7 @@ class RayTracer(val configuration: StaticConfiguration) {
            Having computed the colour contribution from each light source, sum the colours to get the combined colour
             from all diffuse lights */
         lights
-                .map(_.asInstanceOf[VolumeLight] randomPointLight)
+                .map(_/*.asInstanceOf[VolumeLight]*/ randomPointLight)
                 .map(light =>
             if (inShadow(shapes, new Line(
                 intersectionData.intersectionPoint,

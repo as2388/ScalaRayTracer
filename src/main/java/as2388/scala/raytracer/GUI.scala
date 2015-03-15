@@ -50,26 +50,23 @@ object GUI extends SimpleSwingApplication {
     var time = System.currentTimeMillis()
     println("Ray Tracing...")
 
+    val TAU = 2 * Math.PI
+
     val size = new Size(1920, 1080)
-    val sizeX = 80
+    val sizeX = 160
     val sizeY = 90
 
     val image: BufferedImage = new BufferedImage(size.width, size.height, 1)
     val total: Float = size.width / sizeX * size.height / sizeY
     var remaining = total
 
-    val top = new MainFrame {
-        title = "Initialising"
-        preferredSize = new Dimension(1920,1080)
-        contents = new Panel {
-            override def paintComponent(g: Graphics2D): Unit = {
-                g.drawImage(image, 0, 0, null)
-            }
-        }
-    }
-
-    val TAU = 2 * Math.PI
+    val frame = 0
     val frameStep = 4
+
+    val timer = new Timer(1000, taskPerformer)
+    timer.start()
+
+    run(frame * TAU.toFloat / 400, frame)
 
     def run(cameraRot: Float, frame: Int): Unit = {
         timer.restart()
@@ -115,6 +112,16 @@ object GUI extends SimpleSwingApplication {
         }
     }
 
+    val top = new MainFrame {
+        title = "Initialising"
+        preferredSize = new Dimension(1920,1080)
+        contents = new Panel {
+            override def paintComponent(g: Graphics2D): Unit = {
+                g.drawImage(image, 0, 0, null)
+            }
+        }
+    }
+
     def formattedElapsedTime: String = {
         val millis = System.currentTimeMillis() - time
         TimeUnit.MILLISECONDS.toHours(millis) + ":" +
@@ -137,12 +144,4 @@ object GUI extends SimpleSwingApplication {
                     formattedElapsedTime + " - " + predictedRemaining + " - Ray Tracer"
         }
     }
-
-    val timer = new Timer(1000, taskPerformer)
-
-//    override def main(args: Array[String]) {
-        timer.start()
-        val frame = 0
-        run(frame * TAU.toFloat / 400, frame)
-//    }
 }
