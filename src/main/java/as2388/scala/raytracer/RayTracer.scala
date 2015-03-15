@@ -165,18 +165,14 @@ class RayTracer(val configuration: StaticConfiguration) {
             val randomYaw = random * angle * 2 / count - angle / count
             val randomPitch = random * angle * 2 / count - angle / count
 
-//            if (pixelPoint.x < 0.38 * size.width || pixelPoint.y > 0.62 * size.width ||
-//                    pixelPoint.y < 0.38 * size.height || pixelPoint.y > 0.62 * size.height)
-//                colorPixel(pixelPoint, yawChange.toFloat + randomYaw.toFloat, pitchChange.toFloat + randomPitch.toFloat)
-//            else
-                antiAliasingFunction(pixelPoint, yawChange.toFloat + randomYaw.toFloat, pitchChange.toFloat + randomPitch.toFloat)
+            antiAliasingFunction(pixelPoint, yawChange.toFloat + randomYaw.toFloat, pitchChange.toFloat + randomPitch.toFloat)
         }
 
         averageColors(sampledSubPixels.toList)
     }
 
     /**
-     * Perform regular antialiasing to determine the color of a pixel
+     * Perform regular anti-aliasing to determine the color of a pixel
      * @param pixelPoint  The point on the output image to compute the anti-aliased color of.
      * @param count       Number of samples to take in each of directions x and y
      * @param yawChange   Variation in yaw to camera's default (used for focus).
@@ -184,69 +180,34 @@ class RayTracer(val configuration: StaticConfiguration) {
      * @return            Anti-aliased colour of a pixel on the output image.
      */
     private def antiAlias(pixelPoint: PixelPoint, count: Int, yawChange: Float, pitchChange: Float) = {
-//                val sampledSubPixels = for {
-//                    x <- -0.50 to 0.50 by 1.0 / count
-//                    y <- -0.50 to 0.50 by 1.0 / count
-//                } yield {
-//                    val xRandom = random * 1.0 / count - 0.5 / count
-//                    val yRandom = random * 1.0 / count - 0.5 / count
-//
-//                    colorPixel(new PixelPoint(pixelPoint.x + x + xRandom, pixelPoint.y + y + yRandom), yawChange, pitchChange)
-//                }
-//
-//                averageColors(sampledSubPixels.toList)
+        val sampledSubPixels = for {
+            x <- -0.50f to 0.50f by 1.0f / count
+            y <- -0.50f to 0.50f by 1.0f / count
+        } yield {
+            val xRandom = random * 1.0 / count - 0.5 / count
+            val yRandom = random * 1.0 / count - 0.5 / count
 
-        val xRandom = random * 1.0 - 0.5
-        val yRandom = random * 1.0 - 0.5 // / count
-
-//        println(xRandom, yRandom)
-
-        colorPixel(pixelPoint + new PixelPoint(xRandom.toFloat, yRandom.toFloat), yawChange, pitchChange)
-
-//        val sampledSubPixels = (for {
-//            x <- -0.50.toFloat to 0.50.toFloat by 1.0.toFloat
-//            y <- -0.50.toFloat to 0.50.toFloat by 1.0.toFloat
-//        } yield {
-//            val xRandom = random * 1.0 / count - 0.5 / count
-//            val yRandom = random * 1.0 / count - 0.5 / count
-//
-//            colorPixel(new PixelPoint(pixelPoint.x + x + xRandom.toFloat, pixelPoint.y + y + yRandom.toFloat), yawChange, pitchChange)
-//        }).toList
-//
-//        if (variance(sampledSubPixels) > 12e-8) {
-//             averageColors(sampledSubPixels :::
-//                (for {
-//                    x <- -0.50.toFloat to 0.50.toFloat by (1.0 / count).toFloat
-//                    y <- -0.50.toFloat to 0.50.toFloat by (1.0 / count).toFloat
-//                    if (x, y) != (-0.50, 0.50) && (x, y) != (0.50, 0.50) && (x, y) != (-0.50, -0.50) && (x, y) != (0.50, -0.50)
-//                } yield {
-//                    val xRandom = random * 1.0 / count - 0.5 / count
-//                    val yRandom = random * 1.0 / count - 0.5 / count
-//
-//                    colorPixel(new PixelPoint(pixelPoint.x + x + xRandom.toFloat, pixelPoint.y + y + yRandom.toFloat), yawChange, pitchChange)
-//                }).toList
-//            )
-//        } else
-//            averageColors(sampledSubPixels.toList)
-
-    }
-
-    def variance(items: List[Color]): Float = {
-        def mean(item: List[Color]): Color = {
-            item.foldLeft(new Color(0, 0, 0))((a: Color, b: Color) => a + b) * (1 / item.size.toFloat)
+            colorPixel(new PixelPoint(pixelPoint.x + x + xRandom.toFloat, pixelPoint.y + y + yRandom.toFloat),
+                yawChange, pitchChange)
         }
 
-        val itemMean: Color = mean(items)
-        val count = items.size
-        val sumOfSquares: Color = items.foldLeft(new Color(0, 0, 0))((total, item) => {
-            val square: Color = (item - itemMean) * (item - itemMean)
-            total + square
-        })
-
-        val v = sumOfSquares * (1 / count.toFloat)
-        v.r + v.g + v.b
+        averageColors(sampledSubPixels.toList)
     }
 
+    /**
+     * Performs a single random anti-alising sample.
+     * This version of anti-alias should be used with the focus function in order to work effectively.
+     * @param pixelPoint  The point on the output image to compute the single-sample anti-aliased color of
+     * @param yawChange   Variation in yaw to camera's default (used for focus).
+     * @param pitchChange Variation in pitch to camera's default (used for focus).
+     * @return            Anti-aliased colour of a pixel on the output image.
+     */
+    private def antiAlias(pixelPoint: PixelPoint, yawChange: Float, pitchChange: Float) = {
+        val xRandom = random.toFloat - 0.5f
+        val yRandom = random.toFloat - 0.5f
+
+        colorPixel(pixelPoint + new PixelPoint(xRandom, yRandom), yawChange, pitchChange)
+    }
 
     /**
      * Given a list of colors, returns a new color with the list's (r,g,b) values averaged
@@ -260,13 +221,12 @@ class RayTracer(val configuration: StaticConfiguration) {
             colors.map(_.b).sum / colors.length
         )
 
-    private def antiAliasingFunction(pixelPoint: PixelPoint, yawChange: Float = 0, pitchChange: Float = 0) = antiAliasingMode match {
-        case AntiAliasingRegular(count) => antiAlias(pixelPoint, count, yawChange, pitchChange)
-        case AntiAliasingRegularCenter(count, xmin, ymin) => if (pixelPoint.x < xmin || pixelPoint.x > size.width - xmin ||
-                pixelPoint.y < ymin || pixelPoint.y > size.height - ymin ) colorPixel(pixelPoint, yawChange, pitchChange)
-            else antiAlias(pixelPoint, count, yawChange, pitchChange)
-        case AntiAliasingNone()         => colorPixel(pixelPoint, yawChange, pitchChange)
-    }
+    private def antiAliasingFunction(pixelPoint: PixelPoint, yawChange: Float = 0, pitchChange: Float = 0) =
+        antiAliasingMode match {
+            case AntiAliasingRegular(count) => antiAlias(pixelPoint, count, yawChange, pitchChange)
+            case AntiAliasingFocus()        => antiAlias(pixelPoint, yawChange, pitchChange)
+            case AntiAliasingNone()         => colorPixel(pixelPoint, yawChange, pitchChange)
+        }
 
     def focusFunction(pixelPoint: PixelPoint) = focusMode match {
         case FocusSome(count, angle)    => focus(pixelPoint, count, angle)
@@ -279,26 +239,16 @@ class RayTracer(val configuration: StaticConfiguration) {
      * @param writer BufferedImage to write output image to.
      */
     def writeToImage(writer: BufferedImage, startX: Int, startY: Int, width: Int, height: Int) = {
-//        var remaining = size.width
-
         (startX to startX + width - 1).par foreach (x => {
             (startY to startY + height - 1).par foreach (y => {
                 val color = focusFunction(new PixelPoint(x, y)).getSafeColor
-                writer.setRGB(x, y, new java.awt.Color((color.r * 255).toInt, (color.g * 255).toInt, (color.b * 255).toInt).getRGB)
+                writer.setRGB(x, y,
+                    new java.awt.Color((color.r * 255).toInt, (color.g * 255).toInt, (color.b * 255).toInt).getRGB
+                )
             })
         })
-
-//        (0 to size.width - 1).par foreach (x => {
-//            (0 to size.height - 1).par foreach (y => {
-//                val color = focusFunction(new PixelPoint(x, y)).getSafeColor
-//                writer.setRGB(x, y, new java.awt.Color((color.r * 255).toInt, (color.g * 255).toInt, (color.b * 255).toInt).getRGB)
-//            })
-//            remaining -= 1
-//            if (remaining % 1 == 0)
-//                println((((size.width - remaining).toFloat / size.width.toFloat) * 10000).floor / 100 +
-//                        "% done (" + remaining + " columns remain)")
-//        })
     }
+
     /**
      * Performs the RayTrace operation, writing results to a ScalaFX PixelWriter.
      * Everytime a column is completed, prints the number of remaining columns to the console
