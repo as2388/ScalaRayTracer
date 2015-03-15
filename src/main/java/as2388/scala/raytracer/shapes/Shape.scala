@@ -6,12 +6,12 @@ trait Shape {
     /**
      * @return Proportion of illumination due to diffuse lighting.
      */
-    def diffusivity: Double
+    def diffusivity: Float
 
     /**
      * @return Proportion of illumination due to reflective lighting.
      */
-    def reflectivity: Double
+    def reflectivity: Float
 
     /**
      * Computes the ambient color of the shape at a given point on the shape.

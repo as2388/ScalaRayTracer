@@ -2,9 +2,9 @@ package as2388.scala.raytracer.shapes
 
 import as2388.scala.raytracer._
 
-class Cuboid(val center: Point, val XScale: Double, val YScale: Double, val ZScale: Double,
-             val XRot: Double, val YRot: Double, val ZRot: Double,
-             val diffusivity: Double, val reflectivity: Double, val color: Color)
+class Cuboid(val center: Point, val XScale: Float, val YScale: Float, val ZScale: Float,
+             val XRot: Float, val YRot: Float, val ZRot: Float,
+             val diffusivity: Float, val reflectivity: Float, val color: Color)
         extends Shape with MinMax {
 
     val halfXScale = XScale / 2

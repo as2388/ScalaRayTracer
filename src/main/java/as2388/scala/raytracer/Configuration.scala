@@ -2,27 +2,31 @@ package as2388.scala.raytracer
 
 import as2388.scala.raytracer.shapes.Shape
 
-class Configuration(
+trait Configuration
+
+class StaticConfiguration(
        val imageSize: Size,
        val shapes: List[Shape],
        val lights: List[PointLight],
-       val ambientIntensity: Double = 0.1,
+       val ambientIntensity: Float = 0.1.toFloat,
        val camera: Camera,
        val singularities: List[Singularity] = Nil,
-       val singularityDepthLimit: Double = 100,
+       val singularityDepthLimit: Float = 100,
        val enableShadows: Boolean = true,
        val enableDiffuse: Boolean = true,
        val enableReflections: Boolean = true,
        val antiAliasingMode: AntiAliasingMode = new AntiAliasingNone,
        val focusMode: FocusMode = new FocusNone
-)
+) extends Configuration
+
+class AnimatedConfiguration(val configurations: List[StaticConfiguration]) extends Configuration
 
 abstract class AntiAliasingMode
 /** No anti-aliasing */
 case class AntiAliasingNone() extends AntiAliasingMode
 /** Anti-alias from samples taken at regular intervals, with count samples taken in each direction x and y */
 case class AntiAliasingRegular(count: Int) extends AntiAliasingMode
-case class AntiAliasingRegularCenter(count: Int, XMin: Double, YMin: Double) extends AntiAliasingMode
+case class AntiAliasingRegularCenter(count: Int, XMin: Float, YMin: Float) extends AntiAliasingMode
 
 abstract class FocusMode
 /** Do not perform depth-of-field */
@@ -32,4 +36,4 @@ case class FocusNone() extends FocusMode
  * @param count Number of samples to take in each of yaw and pitch
  * @param angle Maximum angle to vary yaw and pitch by
  */
-case class FocusSome(count: Int, angle: Double) extends FocusMode
+case class FocusSome(count: Int, angle: Float) extends FocusMode

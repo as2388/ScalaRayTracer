@@ -2,8 +2,8 @@ package as2388.scala.raytracer.shapes
 
 import as2388.scala.raytracer._
 
-class Plane(val normal: Vector, val distance: Double,
-            val diffusivity: Double, val reflectivity: Double, val color: Color) extends Shape {
+class Plane(val normal: Vector, val distance: Float,
+            val diffusivity: Float, val reflectivity: Float, val color: Color) extends Shape {
     override def color(point: Point): Color = color
 
     override def closestIntersection(line: Line): IntersectionData = {
@@ -11,12 +11,12 @@ class Plane(val normal: Vector, val distance: Double,
 
         if (closestDistance < 0) null
         else new IntersectionData(closestDistance,
-            (((line.vector * closestDistance) asPoint()) + (normal * 0.000001)) + line.point,
+            (((line.vector * closestDistance) asPoint()) + (normal * 0.000001.toFloat)) + line.point,
             normal, this) //0.0001 adds a tiny bit to the normal, to avoid floating point errors affecting shadow computations
     }
 }
 
-class CheckeredPlane(normal: Vector, distance: Double, diffusivity: Double, reflectivity: Double,
+class CheckeredPlane(normal: Vector, distance: Float, diffusivity: Float, reflectivity: Float,
                      val color1: Color, val color2: Color)
         extends Plane(normal, distance, diffusivity, reflectivity, null) {
     override def color(point: Point): Color = {
@@ -27,12 +27,12 @@ class CheckeredPlane(normal: Vector, distance: Double, diffusivity: Double, refl
     }
 }
 
-class FinitePlane(normal: Vector, distance: Double, diffusivity: Double, reflectivity: Double, color: Color,
+class FinitePlane(normal: Vector, distance: Float, diffusivity: Float, reflectivity: Float, color: Color,
                   val vertices: List[Point], val translationOffset: Point = new Point(0, 0, 0))
         extends Plane(normal, distance, diffusivity, reflectivity, color) with Magnitude {
     val TAU = 2 * Math.PI
 
-    def this(vertices: List[Point], diffusivity: Double, reflectivity: Double, color: Color,
+    def this(vertices: List[Point], diffusivity: Float, reflectivity: Float, color: Color,
              translationOffset: Point) =
         this(
             (new Vector(vertices(2), vertices(1)) cross new Vector(vertices(1), vertices(0))) normalize(),

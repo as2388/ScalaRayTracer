@@ -8,7 +8,7 @@ import java.util.concurrent.{Executor, TimeUnit}
 import javax.imageio.ImageIO
 import javax.swing.Timer
 
-import as2388.scala.raytracer.examples.CheckerboardConfiguration
+import as2388.scala.raytracer.examples.{RollingConfiguration, CheckerboardConfiguration}
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,17 +50,17 @@ object GUI extends SimpleSwingApplication {
     var time = System.currentTimeMillis()
     println("Ray Tracing...")
 
-    val size = new Size(3200, 1800)
-    val sizeX = 400
-    val sizeY = 450
+    val size = new Size(1920, 1080)
+    val sizeX = 80
+    val sizeY = 90
 
-    val image: BufferedImage = new BufferedImage(3200, 1800, 1)
-    val total: Double = size.width / sizeX * size.height / sizeY
+    val image: BufferedImage = new BufferedImage(size.width, size.height, 1)
+    val total: Float = size.width / sizeX * size.height / sizeY
     var remaining = total
 
     val top = new MainFrame {
         title = "Initialising"
-        preferredSize = new Dimension(3200, 1800)
+        preferredSize = new Dimension(1920,1080)
         contents = new Panel {
             override def paintComponent(g: Graphics2D): Unit = {
                 g.drawImage(image, 0, 0, null)
@@ -69,17 +69,22 @@ object GUI extends SimpleSwingApplication {
     }
 
     val TAU = 2 * Math.PI
-    val frameStep = 0
+    val frameStep = 4
 
-    def run(cameraRot: Double, frame: Int): Unit = {
+    def run(cameraRot: Float, frame: Int): Unit = {
         timer.restart()
-        for (iter <- 4 to 4) yield {
-            val tracer = new RayTracer(new CheckerboardConfiguration(size, iter, frame).getConfiguration)
+        for (iter <- 8 to 8) yield {
+            val tracer = new RayTracer(new CheckerboardConfiguration(size, iter, frame).getConfiguration.configurations.head)
             for (x <- 0 to size.width / sizeX - 1; y <- 0 to size.height / sizeY - 1) yield {
                 val b = Future {
-                    val mImage = new BufferedImage(3200, 1800, 1)
+                    val mImage = new BufferedImage(1920, 1080, 1)
                     tracer writeToImage(mImage, x * sizeX, y * sizeY, sizeX, sizeY)
                     (mImage, x * sizeX, y * sizeY)
+                }
+
+                b onFailure {
+                    case result =>
+                        result.printStackTrace()
                 }
 
                 b onSuccess {
@@ -96,13 +101,13 @@ object GUI extends SimpleSwingApplication {
                         }
 
                         if (remaining == 0) {
-//                            remaining = total
+                            remaining = total
                             println("Total time: " + formattedElapsedTime)
                             val file = new File("sw" + frame + ".png")
                             ImageIO.write(image, "png", file)
                             time = System.currentTimeMillis()
-//                            if (cameraRot < TAU)
-//                                run(cameraRot + TAU / 400 * frameStep, frame + frameStep)
+                            if (cameraRot < TAU)
+                                run(cameraRot, frame + frameStep)
                         }
                     }
                 }
@@ -137,7 +142,7 @@ object GUI extends SimpleSwingApplication {
 
 //    override def main(args: Array[String]) {
         timer.start()
-        val frame = 120
-        run(frame * TAU / 400, frame)
+        val frame = 0
+        run(frame * TAU.toFloat / 400, frame)
 //    }
 }

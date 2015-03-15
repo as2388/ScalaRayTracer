@@ -2,7 +2,7 @@ package as2388.scala.raytracer.shapes
 
 import as2388.scala.raytracer._
 
-class Sphere(val center: Point, val radius: Double, val diffusivity: Double, val reflectivity: Double, color: Color)
+class Sphere(val center: Point, val radius: Float, val diffusivity: Float, val reflectivity: Float, color: Color)
         extends Shape with MinMax {
 
     override def color(point: Point): Color = color
@@ -31,8 +31,8 @@ class Sphere(val center: Point, val radius: Double, val diffusivity: Double, val
         else {
             val d = Math sqrt discriminant
 
-            val intersectionDistance1 = (-b + d) / (2 * a)
-            val intersectionDistance2 = (-b - d) / (2 * a)
+            val intersectionDistance1 = (-b + d).toFloat / (2 * a)
+            val intersectionDistance2 = (-b - d).toFloat / (2 * a)
 
             val closestIntersectionDistance = min(intersectionDistance1, intersectionDistance2)
             val closestIntersectionPoint = line.point + (line.vector * closestIntersectionDistance)

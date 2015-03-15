@@ -1,11 +1,11 @@
 package as2388.scala.raytracer
 
-class Camera(val screenCentre: Point, val distanceFromScreen: Double, val screenPixelDimensions: Size,
-                val pointsPerPixel: Double, val yaw: Double, val pitch: Double, val roll: Double) {
+class Camera(val screenCentre: Point, val distanceFromScreen: Float, val screenPixelDimensions: Size,
+                val pointsPerPixel: Float, val yaw: Float, val pitch: Float, val roll: Float) {
     val halfWidth = screenPixelDimensions.width / 2
     val halfHeight = screenPixelDimensions.height / 2
 
-    def lineToPixel(point: PixelPoint, yawChange: Double = 0, pitchChange: Double = 0) = {
+    def lineToPixel(point: PixelPoint, yawChange: Float = 0, pitchChange: Float = 0) = {
         val yaw = this.yaw + yawChange
         val pitch = this.pitch + pitchChange
 
@@ -27,8 +27,10 @@ class Camera(val screenCentre: Point, val distanceFromScreen: Double, val screen
 
 class Size(val width: Int, val height: Int)
 
-class PixelPoint(val x: Double, val y: Double) {
-    def scalarMultiply(constant: Double) = new Point(x * constant, y * constant, 0)
+class PixelPoint(val x: Float, val y: Float) {
+    def scalarMultiply(constant: Float) = new Point(x * constant, y * constant, 0)
+
+    def +(p: PixelPoint) = new PixelPoint(x + p.x, y + p.y)
 }
 
 
