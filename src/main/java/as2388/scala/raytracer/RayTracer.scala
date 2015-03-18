@@ -37,12 +37,13 @@ class RayTracer(val configuration: StaticConfiguration) {
             if (a != null && b != null && a.distance > 0 && a.distance < b.distance) a
             else b)
 
+        val step = 10
         singularities match {
             case Nil => closest
             case _ =>
                 if (distanceSoFar > singularityDepthLimit) null
-                else if (closest == null || closest.distance > 1) {
-                    val endPoint = line.point + (line.vector * 1)
+                else if (closest == null || closest.distance > step) {
+                    val endPoint = line.point + (line.vector * step)
 
                     val gravitationalForces: List[Vector] = singularities map (singularity =>
                         new Vector(endPoint, singularity.location) *
@@ -50,7 +51,7 @@ class RayTracer(val configuration: StaticConfiguration) {
 
                     val newVector = gravitationalForces.foldLeft(line.vector)((b: Vector, a: Vector) => a + b) normalize()
 
-                    closestShape(new Line(endPoint, newVector), distanceSoFar + 1)
+                    closestShape(new Line(endPoint, newVector), distanceSoFar + step)
                 }
                 else closest
         }

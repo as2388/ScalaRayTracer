@@ -8,7 +8,7 @@ class StaticConfiguration(
        val imageSize: Size,
        val shapes: List[Shape],
        val lights: List[PointLight],
-       val ambientIntensity: Float = 0.1.toFloat,
+       val ambientIntensity: Float = 0.1f,
        val camera: Camera,
        val singularities: List[Singularity] = Nil,
        val singularityDepthLimit: Float = 100,

@@ -34,7 +34,7 @@ class Sphere(val center: Point, val radius: Float, val diffusivity: Float, val r
             val intersectionDistance1 = (-b + d).toFloat / (2 * a)
             val intersectionDistance2 = (-b - d).toFloat / (2 * a)
 
-            val closestIntersectionDistance = min(intersectionDistance1, intersectionDistance2)
+            val closestIntersectionDistance = min(intersectionDistance1, intersectionDistance2) + 0.0001f
             val closestIntersectionPoint = line.point + (line.vector * closestIntersectionDistance)
             val intersectionNormal = new Vector(closestIntersectionPoint, center) normalize()
 

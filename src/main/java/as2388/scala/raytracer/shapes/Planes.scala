@@ -11,7 +11,7 @@ class Plane(val normal: Vector, val distance: Float,
 
         if (closestDistance < 0) null
         else new IntersectionData(closestDistance,
-            (((line.vector * closestDistance) asPoint()) + (normal * 0.000001.toFloat)) + line.point,
+            (((line.vector * closestDistance) asPoint()) + (normal * 0.0001.toFloat)) + line.point,
             normal, this) //0.0001 adds a tiny bit to the normal, to avoid floating point errors affecting shadow computations
     }
 }

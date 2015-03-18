@@ -8,47 +8,56 @@ abstract class ConfigurationManager {
     def getConfiguration: Configuration
 }
 
-//abstract class AnimatedConfigurationManager {
-//    def getConfigurations: List[Configuration]
-//}
+/**
+* Renders a red sphere with a singularity at its centre, and a magnified purple sphere behind it
+* @param size  Image size
+*/
+class LenseConfiguration(val size: Size, val frame: Float) extends ConfigurationManager {
+    val TAU = (Math.PI / 2).toFloat
 
-///**
-// * Renders a red sphere with a singularity at its centre, and a magnified purple sphere behind it
-// * @param size  Image size
-// */
-//class LenseConfiguration(val size: Size) extends ConfigurationManager {
-//    override def getConfiguration = {
-//        new Configuration(
-//            imageSize = size,
-//
-//            shapes =
-//                new Sphere(new Point(28, 6, 0), 2, 1.0.toFloat, 0, new Color(255, 193, 7)) :: Nil,
-//
-//            lights =
-//                new PointLight(new Point(-10, 50, 80), 0.30.toFloat) ::
-//                new PointLight(new Point(54, 50, 80), 0.30.toFloat) ::
-//                new PointLight(new Point(-20, -50, 50), 0.2.toFloat) ::
-//                new PointLight(new Point(28, 5, -70), 0.20.toFloat) ::
-//                Nil,
-//
-//            camera = new Camera(
-//                screenCentre = new Point(22, 5, 0),
-//                distanceFromScreen = 70,
-//                screenPixelDimensions = size,
-//                pointsPerPixel = .35.toFloat,
-//                yaw = 0,
-//                pitch = 0,
-//                roll = 0
-//            ),
-//
-//            singularities =
-//                new Singularity(new Point(22, 5, 0), -0.037.toFloat) ::
-//                Nil,
-//
-//            singularityDepthLimit = 300
-//        )
-//    }
-//}
+    override def getConfiguration = {
+        val animated = (for (
+            motionOffset <- -16 to 16
+        ) yield {
+            new StaticConfiguration(
+                imageSize = size,
+
+                shapes =
+                        //                new Sphere(new Point(22, 5, 0), 3.4f, 0.9.toFloat, 0.1.toFloat, ColorUtils.fromHex("E91E63")) :: //Pink 500
+                        //                new Sphere(new Point(28, 5, 0), 2, 0.9f, 0.1f, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
+                        new CheckeredPlane(new Vector(0, 0, 1), 6, 1, 0, ColorUtils.fromHex("F1F8E9"), ColorUtils.fromHex("9E9E9E")) ::
+                                Nil,
+
+                lights =
+                        new PointLight(new Point(-10, 50, 80), 0.60.toFloat) ::
+                                new PointLight(new Point(-15, 5, 0), 0.60.toFloat) ::
+                                new PointLight(new Point(-20, -50, 30), 0.30.toFloat) ::
+                                Nil,
+
+                camera = new Camera(
+                    screenCentre = new Point(22, 4, 0),
+                    distanceFromScreen = 70,
+                    screenPixelDimensions = size,
+                    //                pointsPerPixel = .115.toFloat,
+                    pointsPerPixel =.065.toFloat,
+                    yaw = (TAU / -400 * frame + motionOffset.toFloat / 1600),
+                    pitch = TAU / 16,
+                    roll = 0
+                ),
+
+                singularities =
+                        new Singularity(new Point(22, 4, 0), -0.037.toFloat) ::
+                                Nil,
+
+                            antiAliasingMode = new AntiAliasingFocus,
+
+                singularityDepthLimit = 600
+            )
+        }).toList
+
+        new AnimatedConfiguration(animated)
+    }
+}
 
 /**
  * Renders the image on this project's github home page, a checkerboard with spheres and cuboids on it
@@ -65,36 +74,41 @@ class CheckerboardConfiguration(val size: Size, val iter: Float, val frame: Floa
 
     override def getConfiguration = {
         val animated = (for (
-            motionoffset <- -10 to 10
+            motionOffset <- -10 to 10
         ) yield {
             new StaticConfiguration(
+//                singularities =
+//                    new Singularity(new Point(40, -2, -2), -0.003.toFloat) ::
+//                    new Singularity(new Point(40, 12, -2), -0.003.toFloat) ::
+//                    Nil,
+
                 imageSize = size,
                 shapes =
                         new Sphere(new Point(22, 5, 0), 3, 0.9.toFloat, 0.1.toFloat, ColorUtils.fromHex("E91E63")) :: //Pink 500
-                                new Sphere(new Point(21, 9, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
-                                new Sphere(new Point(36, -8, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
-                                new Sphere(new Point(15, 18, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
-                                new Sphere(new Point(10, -12, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
-                                new Sphere(new Point(40, 12, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
-                                new Sphere(new Point(3, -7, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
-                                new Sphere(new Point(14, 0, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
-                                new Sphere(new Point(80, 19, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple
-                                new Cuboid(
-                                    center = new Point(8, -10, -0.5.toFloat),
-                                    XScale = 8, YScale = 2, ZScale = 5,
-                                    XRot = 0, YRot = 0, ZRot = (TAU / 5).toFloat,
-                                    diffusivity = 0.5.toFloat, reflectivity = 0.5.toFloat,
-                                    color = ColorUtils.fromHex("4CAF50")
-                                ) ::
-                                new Cuboid(
-                                    center = new Point(58, 25, -1.5.toFloat),
-                                    XScale = 3, YScale = 3, ZScale = 3,
-                                    XRot = 0, YRot = 0, ZRot = (-TAU / 5).toFloat,
-                                    diffusivity = 0.35.toFloat, reflectivity = 0.75.toFloat,
-                                    color = ColorUtils.fromHex("009688")
-                                ) ::
-                                new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8.toFloat, 0.2.toFloat, ColorUtils.fromHex("F1F8E9"), ColorUtils.fromHex("9E9E9E")) ::
-                                Nil,
+                        new Sphere(new Point(21, 9, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
+                        new Sphere(new Point(36, -8, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
+                        new Sphere(new Point(15, 18, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
+                        new Sphere(new Point(10, -12, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
+                        new Sphere(new Point(40, 12, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
+                        new Sphere(new Point(3, -7, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
+                        new Sphere(new Point(14, 0, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple 500
+                        new Sphere(new Point(80, 19, -2), 1, 0.5.toFloat, 0.5.toFloat, ColorUtils.fromHex("673AB7")) :: //Deep Purple
+                        new Cuboid(
+                            center = new Point(8, -10, -0.5.toFloat),
+                            XScale = 8, YScale = 2, ZScale = 5,
+                            XRot = 0, YRot = 0, ZRot = (TAU / 5).toFloat,
+                            diffusivity = 0.5.toFloat, reflectivity = 0.5.toFloat,
+                            color = ColorUtils.fromHex("4CAF50")
+                        ) ::
+                        new Cuboid(
+                            center = new Point(58, 25, -1.5.toFloat),
+                            XScale = 3, YScale = 3, ZScale = 3,
+                            XRot = 0, YRot = 0, ZRot = (-TAU / 5).toFloat,
+                            diffusivity = 0.35.toFloat, reflectivity = 0.75.toFloat,
+                            color = ColorUtils.fromHex("009688")
+                        ) ::
+                        new CheckeredPlane(new Vector(0, 0, 1), 3, 0.8.toFloat, 0.2.toFloat, ColorUtils.fromHex("F1F8E9"), ColorUtils.fromHex("9E9E9E")) ::
+                        Nil,
 
                 lights =
                         if (iter <= 6 || true)
@@ -110,20 +124,22 @@ class CheckerboardConfiguration(val size: Size, val iter: Float, val frame: Floa
                     screenCentre = new Point(22, 5, 0), //(22, ...
                     distanceFromScreen = 70, //40
                     screenPixelDimensions = size,
-                    pointsPerPixel = 0.015.toFloat,
+                    pointsPerPixel = 0.02.toFloat,
                     yaw = 0, //(TAU / 400 * frame + motionoffset.toFloat / 400).toFloat,
                     pitch = (TAU / 16).toFloat,
                     roll = 0 //TAU / 400 * frame
                 ),
+
+                singularityDepthLimit = 200,
 
                 enableShadows = iter > 2,
                 enableDiffuse = iter > 1,
                 enableReflections = iter > 3,
                 ambientIntensity = if (iter > 1) 0.1.toFloat else 0.6.toFloat,
 
-                antiAliasingMode = new AntiAliasingRegular(2),
-
-                focusMode = if (iter > 7 && false) new FocusSome(10, (Math.PI / 400).toFloat) else new FocusNone
+                antiAliasingMode = new AntiAliasingRegular(2)
+//
+//                focusMode = if (iter > 7 && false) new FocusSome(10, (Math.PI / 400).toFloat) else new FocusNone
             )
         }).toList
 
@@ -174,11 +190,11 @@ class RollingConfiguration(val size: Size, val iter: Float, val frame: Float) ex
                 enableShadows = iter > 2,
                 enableDiffuse = iter > 1,
                 enableReflections = iter > 3,
-                ambientIntensity = if (iter > 1) 0.1.toFloat else 0.6.toFloat,
+                ambientIntensity = if (iter > 1) 0.1.toFloat else 0.6.toFloat
 
-                antiAliasingMode = if (iter > 5) new AntiAliasingRegular(3) else new AntiAliasingNone,
+//                antiAliasingMode = new AntiAliasingNone,
 
-                focusMode = if (iter > 7) new FocusSome(10, (Math.PI / 400).toFloat) else new FocusNone
+//                focusMode = if (iter > 7) new FocusSome(10, (Math.PI / 400).toFloat) else new FocusNone
             )
         }).toList
 
