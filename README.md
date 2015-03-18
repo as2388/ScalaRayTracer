@@ -8,18 +8,18 @@ See the <a href="https://github.com/as2388/ScalaRayTracer/wiki/Building-an-Image
 Current features:
  - Shapes:
    - Sphere
-   - Infinite Plane. Includes checkerboard plane
-   - Finite plane (i.e. polygon). Cube and cuboid built from these
+   - Infinite Plane
+   - Finite plane. Cube and Cuboid built from these
  - Lighting:
    - Diffuse illumination
    - Ambient illumination
    - Shadows
    - Coloured point light sources
-   - Volume light sources, which generate soft shadows
+   - Volume light sources
    - Reflections
  - Anti-aliasing
- - Depth of field (with anti-alias limited to middle 30%)
+ - Depth of field
  - Movable, rotatable camera
- - Gravitational Lensing
+ - <a href="https://github.com/as2388/ScalaRayTracer/wiki/Gravitational-Lensing">Gravitational Lensing</a>
  - Multi-threaded
  
